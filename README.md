@@ -6,11 +6,11 @@
 
 Before you get started, ensure you have the following installed:
 
-- **Node.js**
-- **pnpm**
-- **Go**
-- **Air**
-- **SQLite**
+- [**Node.js**](https://nodejs.org/en/download/package-manager)
+- [**pnpm**](https://pnpm.io/installation)
+- [**Go**](https://go.dev/doc/install)
+- [**Air**](https://github.com/air-verse/air)
+- [**SQLite**](https://www.sqlite.org/download.html)
 
 ## Quick Start
 
