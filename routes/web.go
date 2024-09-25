@@ -11,6 +11,8 @@ import (
 func WebRoutes(app *stypes.App, handler *handlers.Handlers) {
 	ui := app.Group("/", cors.New())
 	ui.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
+		return c.SendString(
+			"OmniScan: AI-powered OCR solution for swift, accurate data extraction from diverse documents. Simplify your document processing with intelligent recognition technology.",
+		)
 	})
 }
