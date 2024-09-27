@@ -24,7 +24,7 @@ func New() *MutasiScanner {
 	return &MutasiScanner{scanner}
 }
 
-func (ms *MutasiScanner) Scan(provider string, input interface{}) (*types.Transactions, error) {
+func (ms *MutasiScanner) Scan(provider string, input interface{}) (*types.ScanResult, error) {
 	scanner, ok := ms.scanner[provider]
 	if !ok {
 		return nil, fmt.Errorf("unsupported provider: %s", provider)

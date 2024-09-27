@@ -25,6 +25,8 @@ func New(config *config.Config, hashing hashing.Hashing) *Model {
 			&RolePermission{},
 			&Role{},
 			&User{},
+			&Mutasi{},
+			&MutasiDetail{},
 		},
 		seeds: []Seed{
 			&Permission{},

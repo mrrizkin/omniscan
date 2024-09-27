@@ -14,7 +14,7 @@ func New() types.MutasiScanner {
 	return &BCA{}
 }
 
-func (bca *BCA) ProcessFromPath(path string) (*types.Transactions, error) {
+func (bca *BCA) ProcessFromPath(path string) (*types.ScanResult, error) {
 	f, pdfR, err := pdf.Open(path)
 	defer func() {
 		_ = f.Close()
@@ -22,14 +22,14 @@ func (bca *BCA) ProcessFromPath(path string) (*types.Transactions, error) {
 	if err != nil {
 		return nil, err
 	}
-	trx, err := processPdf(pdfR)
+	trx, header, err := processPdf(pdfR)
 	if err != nil {
 		return nil, err
 	}
 
-	return bca.maptrx(trx), nil
+	return bca.maptrx(header, trx), nil
 }
-func (bca *BCA) ProcessFromReader(r io.Reader) (*types.Transactions, error) {
+func (bca *BCA) ProcessFromReader(r io.Reader) (*types.ScanResult, error) {
 	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
@@ -41,48 +41,37 @@ func (bca *BCA) ProcessFromReader(r io.Reader) (*types.Transactions, error) {
 
 	return trx, nil
 }
-func (bca *BCA) ProcessFromBytes(b []byte) (*types.Transactions, error) {
+func (bca *BCA) ProcessFromBytes(b []byte) (*types.ScanResult, error) {
 	bytesR := bytes.NewReader(b)
 	pdfR, err := pdf.NewReader(bytesR, bytesR.Size())
 	if err != nil {
 		return nil, err
 	}
-	trx, err := processPdf(pdfR)
+	trx, header, err := processPdf(pdfR)
 	if err != nil {
 		return nil, err
 	}
 
-	return bca.maptrx(trx), nil
+	return bca.maptrx(header, trx), nil
 }
 
-func (*BCA) maptrx(trxs Transactions) *types.Transactions {
-	trx := new(types.Transactions)
-	trx.Transactions = make([]*types.Transaction, len(trxs))
-	startIndex := 0
-	lastIndex := len(trxs) - 1
+func (*BCA) maptrx(header Header, trxs Transactions) *types.ScanResult {
+	res := new(types.ScanResult)
+	res.Transactions = make([]*types.Transaction, len(trxs))
+	totalBalance := 0.0
 	for i, t := range trxs {
-		if i == startIndex {
-			trx.StartBalance = t.Balance
-		}
-
-		if i == lastIndex {
-			trx.EndBalance = t.Balance
-		}
+		totalBalance = totalBalance + t.Balance
 
 		trxType := ""
 		if t.DirectionCr != nil {
 			if *t.DirectionCr {
 				trxType = "credit"
-				trx.TransactionCreditCount = trx.TransactionCreditCount + 1
-				trx.TransactionCreditTotal = trx.TransactionCreditTotal + t.Change
 			} else {
 				trxType = "debit"
-				trx.TransactionDebitCount = trx.TransactionDebitCount + 1
-				trx.TransactionDebitTotal = trx.TransactionDebitTotal + t.Change
 			}
 		}
 
-		trx.Transactions[i] = &types.Transaction{
+		res.Transactions[i] = &types.Transaction{
 			Date:            t.Date,
 			Description1:    t.Description1,
 			Description2:    t.Description2,
@@ -93,5 +82,15 @@ func (*BCA) maptrx(trxs Transactions) *types.Transactions {
 		}
 	}
 
-	return trx
+	countTransaction := len(trxs)
+	if countTransaction < 1 {
+		countTransaction = 1
+	}
+
+	res.Info.Bank = "BCA"
+	res.Info.Produk = header.Product
+	res.Info.Rekening = header.Rekening
+	res.Info.Periode = header.Periode
+
+	return res
 }

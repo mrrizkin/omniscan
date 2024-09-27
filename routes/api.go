@@ -14,6 +14,7 @@ func ApiRoutes(api fiber.Router, handler *handlers.Handlers) {
 	}))
 
 	v1.Post("/scan-mutasi", handler.ScanMutasi)
+	v1.Get("/summary-mutasi/:id", handler.GetSumary)
 
 	v1.Get("/user", handler.UserFindAll)
 	v1.Get("/user/:id", handler.UserFindByID)

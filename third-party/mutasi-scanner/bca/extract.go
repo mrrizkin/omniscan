@@ -27,12 +27,17 @@ var months = []string{
 
 // this is the internal function called by the exported
 // ProcessPdf*** functions
-func processPdf(pdfR *pdf.Reader) (Transactions, error) {
+func processPdf(pdfR *pdf.Reader) (Transactions, Header, error) {
 	totalPage := pdfR.NumPage()
 	transactions := make([]*Transaction, 0)
 	var currentTransaction *Transaction = nil
 	var isNew = false
 	year := "1900"
+	header := Header{
+		Product:  "",
+		Rekening: "",
+		Periode:  "",
+	}
 	for pageIndex := 1; pageIndex <= totalPage; pageIndex++ {
 		p := pdfR.Page(pageIndex)
 		if p.V.IsNull() {
@@ -77,6 +82,25 @@ func processPdf(pdfR *pdf.Reader) (Transactions, error) {
 							}
 						}
 					}
+					if pageIndex == 1 {
+						if strings.Contains(word.S, "REKENING") && wordIndex == 0 {
+							if len(row.Content) == 1 {
+								header.Product = word.S
+							}
+						}
+						if strings.Contains(word.S, "NO. REKENING") && wordIndex == 0 {
+							if len(row.Content) > 2 {
+								txt := row.Content[2]
+								header.Rekening = txt.S
+							}
+						}
+						if strings.Contains(word.S, "PERIODE") && wordIndex == 0 {
+							if len(row.Content) > 2 {
+								txt := row.Content[2]
+								header.Periode = txt.S
+							}
+						}
+					}
 					if strings.Contains("TANGGAL", word.S) && wordIndex == 0 {
 						m++
 					}
@@ -99,5 +123,5 @@ func processPdf(pdfR *pdf.Reader) (Transactions, error) {
 			}
 		}
 	}
-	return transactions, nil
+	return transactions, header, nil
 }

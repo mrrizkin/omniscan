@@ -20,6 +20,12 @@ type Transaction struct {
 
 type Transactions []*Transaction
 
+type Header struct {
+	Product  string
+	Rekening string
+	Periode  string
+}
+
 type leftCol float64
 type rightCol float64
 

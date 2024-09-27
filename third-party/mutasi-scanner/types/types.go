@@ -6,9 +6,9 @@ import (
 )
 
 type MutasiScanner interface {
-	ProcessFromPath(path string) (*Transactions, error)
-	ProcessFromReader(r io.Reader) (*Transactions, error)
-	ProcessFromBytes(b []byte) (*Transactions, error)
+	ProcessFromPath(path string) (*ScanResult, error)
+	ProcessFromReader(r io.Reader) (*ScanResult, error)
+	ProcessFromBytes(b []byte) (*ScanResult, error)
 }
 
 type Transaction struct {
@@ -21,12 +21,14 @@ type Transaction struct {
 	Balance         float64   `json:"balance,omitempty"`
 }
 
-type Transactions struct {
-	StartBalance           float64        `json:"start_balance"`
-	EndBalance             float64        `json:"end_balance"`
-	TransactionDebitTotal  float64        `json:"transaction_debit_total"`
-	TransactionCreditTotal float64        `json:"transaction_credit_total"`
-	TransactionDebitCount  float64        `json:"transaction_debit_count"`
-	TransactionCreditCount float64        `json:"transaction_credit_count"`
-	Transactions           []*Transaction `json:"transactions"`
+type ScanInfo struct {
+	Bank     string `json:"bank"`
+	Produk   string `json:"produk"`
+	Rekening string `json:"rekening"`
+	Periode  string `json:"periode"`
+}
+
+type ScanResult struct {
+	Info         ScanInfo       `json:"info"`
+	Transactions []*Transaction `json:"transactions"`
 }
