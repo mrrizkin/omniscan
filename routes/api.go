@@ -13,6 +13,7 @@ func ApiRoutes(api fiber.Router, handler *handlers.Handlers) {
 		AllowHeaders: "Origin, Content-Type, Accept, finteligo-api-token",
 	}))
 
+	v1.Get("/mutasis", handler.MutasiFindAll)
 	v1.Post("/scan-mutasi", handler.ScanMutasi)
 	v1.Get("/summary-mutasi/:id", handler.GetSumary)
 

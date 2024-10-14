@@ -1,17 +1,37 @@
 package ocr
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/mrrizkin/omniscan/app/models"
 	"github.com/mrrizkin/omniscan/app/utils"
 	"github.com/mrrizkin/omniscan/system/database"
+	"github.com/mrrizkin/omniscan/system/stypes"
 	system_util "github.com/mrrizkin/omniscan/system/utils"
+	"gorm.io/gorm"
 )
 
 func NewRepo(db *database.Database) *Repo {
 	return &Repo{db}
+}
+
+func (r *Repo) FindAll(
+	pagination stypes.Pagination,
+) ([]models.Mutasi, error) {
+	mutasis := make([]models.Mutasi, 0)
+	err := r.db.
+		Offset((pagination.Page - 1) * pagination.PerPage).
+		Limit(pagination.PerPage).
+		Find(&mutasis).Error
+	return mutasis, err
+}
+
+func (r *Repo) FindAllCount() (int64, error) {
+	var count int64 = 0
+	err := r.db.Model(&models.Mutasi{}).Count(&count).Error
+	return count, err
 }
 
 func (r *Repo) Aggregate(mutasi *models.Mutasi) error {
@@ -20,6 +40,26 @@ func (r *Repo) Aggregate(mutasi *models.Mutasi) error {
 
 func (r *Repo) AggregateDetail(mutasiDetail []models.MutasiDetail) error {
 	return r.db.Create(mutasiDetail).Error
+}
+
+func (r *Repo) IsFileAlreadyScanned(filename string) bool {
+	mutasi := new(models.Mutasi)
+	err := r.db.Preload("MutasiDetail").Where("filename = ?", filename).
+		First(mutasi).
+		Error
+	return !errors.Is(err, gorm.ErrRecordNotFound)
+}
+
+func (r *Repo) GetMutasiByFilename(filename string) (*models.Mutasi, error) {
+	mutasi := new(models.Mutasi)
+	err := r.db.Where("filename = ?", filename).
+		First(mutasi).
+		Error
+	if err != nil {
+		return nil, err
+	}
+
+	return mutasi, nil
 }
 
 func (r *Repo) GetHeader(idMutasi uint) (*models.Mutasi, error) {

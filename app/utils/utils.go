@@ -1,5 +1,7 @@
 package utils
 
+import gonanoid "github.com/matoous/go-nanoid"
+
 func Chunk[T any](slice []T, chunkSize int) [][]T {
 	var chunks [][]T
 	for chunkSize < len(slice) {
@@ -7,4 +9,9 @@ func Chunk[T any](slice []T, chunkSize int) [][]T {
 	}
 	chunks = append(chunks, slice)
 	return chunks
+}
+
+func RandomStr(length int) string {
+	str, _ := gonanoid.Generate("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", length)
+	return str
 }

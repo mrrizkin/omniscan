@@ -11,6 +11,7 @@ type Mutasi struct {
 	CreatedAt    *time.Time     `json:"created_at"`
 	UpdatedAt    *time.Time     `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `json:"deleted_at"    gorm:"index"`
+	Filename     string         `json:"filename"      gorm:"index"`
 	Bank         string         `json:"bank"`
 	Produk       string         `json:"produk"`
 	Rekening     string         `json:"rekening"`

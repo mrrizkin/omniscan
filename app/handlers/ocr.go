@@ -1,11 +1,41 @@
 package handlers
 
 import (
+	"fmt"
+	"math"
+	"os"
+
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/mrrizkin/omniscan/app/domains/ocr"
+	"github.com/mrrizkin/omniscan/app/utils"
 	"github.com/mrrizkin/omniscan/system/stypes"
 )
+
+func (h *Handlers) MutasiFindAll(c *fiber.Ctx) error {
+	pagination := h.GetPaginationQuery(c)
+	mutasis, err := h.ocrService.FindAll(pagination)
+	if err != nil {
+		h.System.Logger.Error(err, "failed get mutasis")
+		return &fiber.Error{
+			Code:    500,
+			Message: "failed get mutasis",
+		}
+	}
+
+	return h.SendJson(c, stypes.Response{
+		Status:  "success",
+		Title:   "Success",
+		Message: "success get mutasis",
+		Data:    mutasis.Result,
+		Meta: &stypes.PaginationMeta{
+			Page:      pagination.Page,
+			PerPage:   pagination.PerPage,
+			Total:     mutasis.Total,
+			PageCount: int(math.Ceil(float64(mutasis.Total) / float64(pagination.PerPage))),
+		},
+	})
+}
 
 func (h *Handlers) ScanMutasi(c *fiber.Ctx) error {
 	payload := new(ocr.ScanMutasiPayload)
@@ -39,7 +69,30 @@ func (h *Handlers) ScanMutasi(c *fiber.Ctx) error {
 		}
 	}
 
-	scanResult, err := h.ocrService.ScanMutasi(payload, filePayload)
+	filePath := "storage/" + utils.RandomStr(10) + filePayload.Filename
+	err = c.SaveFile(filePayload, filePath)
+	if err != nil {
+		return &fiber.Error{
+			Code:    500,
+			Message: "Failed to save the pdf",
+		}
+	}
+
+	defer func() {
+		err := os.Remove(filePath)
+		if err != nil {
+			h.System.Logger.Error(
+				err,
+				fmt.Sprintf("failed to remove the uploaded file: %s", filePath),
+			)
+		}
+	}()
+
+	scanResult, err := h.ocrService.ScanMutasi(
+		payload,
+		filePayload,
+		filePath,
+	)
 	if err != nil {
 		h.System.Logger.Error(err, "failed to scan mutasi")
 		return &fiber.Error{

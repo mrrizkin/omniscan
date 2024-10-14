@@ -18,6 +18,11 @@ type Service struct {
 	scanner *mutasi_scanner.MutasiScanner
 }
 
+type PaginatedMutasi struct {
+	Result []models.Mutasi
+	Total  int
+}
+
 type ScanMutasiPayload struct {
 	Provider string `form:"provider"  validate:"required"`
 	TimeBomb string `form:"time_bomb"`

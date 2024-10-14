@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"github.com/mrrizkin/omniscan/app/models"
+	"github.com/mrrizkin/omniscan/system/stypes"
 	mutasi_scanner "github.com/mrrizkin/omniscan/third-party/mutasi-scanner"
+	"github.com/mrrizkin/omniscan/third-party/mutasi-scanner/types"
 )
 
 func NewService(repo *Repo, scanner *mutasi_scanner.MutasiScanner) *Service {
@@ -19,9 +21,27 @@ func NewService(repo *Repo, scanner *mutasi_scanner.MutasiScanner) *Service {
 	}
 }
 
+func (s *Service) FindAll(pagination stypes.Pagination) (*PaginatedMutasi, error) {
+	mutasis, err := s.repo.FindAll(pagination)
+	if err != nil {
+		return nil, err
+	}
+
+	mutasisCount, err := s.repo.FindAllCount()
+	if err != nil {
+		return nil, err
+	}
+
+	return &PaginatedMutasi{
+		Result: mutasis,
+		Total:  int(mutasisCount),
+	}, nil
+}
+
 func (s *Service) ScanMutasi(
 	payload *ScanMutasiPayload,
 	fileHeader *multipart.FileHeader,
+	filePath string,
 ) (*ScanMutasiResponse, error) {
 	if fileHeader == nil {
 		return nil, errors.New("file can't be nil")
@@ -30,6 +50,48 @@ func (s *Service) ScanMutasi(
 	file, err := s.convertMultipartFileToBytes(fileHeader)
 	if err != nil {
 		return nil, err
+	}
+
+	if s.repo.IsFileAlreadyScanned(fileHeader.Filename) {
+		mutasi, _ := s.repo.GetMutasiByFilename(fileHeader.Filename)
+		summary, err := s.getSummary(mutasi.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		transactions := make([]*types.Transaction, len(mutasi.MutasiDetail))
+		for i, detail := range mutasi.MutasiDetail {
+			transactions[i].Date = detail.Date
+			transactions[i].Description1 = detail.Description1
+			transactions[i].Description2 = detail.Description2
+			transactions[i].Branch = detail.Branch
+			transactions[i].Change = detail.Change
+			transactions[i].TransactionType = detail.TransactionType
+			transactions[i].Balance = detail.Balance
+		}
+
+		scanResult := types.ScanResult{
+			Transactions: transactions,
+			Info: types.ScanInfo{
+				Bank:     mutasi.Bank,
+				Produk:   mutasi.Produk,
+				Rekening: mutasi.Rekening,
+				Periode:  mutasi.Periode,
+			},
+		}
+
+		response := ScanMutasiResponse{
+			MutasiID:   mutasi.ID,
+			ScanResult: &scanResult,
+			Meta: Meta{
+				FileName: fileHeader.Filename,
+				FileSize: fileHeader.Size,
+				FileMime: http.DetectContentType(file),
+			},
+			Summary: *summary,
+		}
+
+		return &response, nil
 	}
 
 	scanResult, err := s.scanner.Scan(payload.Provider, file)
@@ -49,6 +111,7 @@ func (s *Service) ScanMutasi(
 
 	mutasi := &models.Mutasi{
 		Bank:     scanResult.Info.Bank,
+		Filename: fileHeader.Filename,
 		Produk:   scanResult.Info.Produk,
 		Rekening: scanResult.Info.Rekening,
 		Periode:  scanResult.Info.Periode,

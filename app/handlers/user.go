@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"math"
+
 	"github.com/gofiber/fiber/v2"
 
 	"github.com/mrrizkin/omniscan/app/models"
@@ -60,7 +62,7 @@ func (h *Handlers) UserFindAll(c *fiber.Ctx) error {
 			Page:      pagination.Page,
 			PerPage:   pagination.PerPage,
 			Total:     users.Total,
-			PageCount: users.Total / pagination.PerPage,
+			PageCount: int(math.Ceil(float64(users.Total) / float64(pagination.PerPage))),
 		},
 	})
 }
