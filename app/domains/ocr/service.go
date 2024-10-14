@@ -150,6 +150,46 @@ func (s *Service) getSummary(mutasiID uint) (*OverallSummary, error) {
 		return nil, err
 	}
 
+	anomalyTransactions, err := s.repo.GetAnomalyTransactions(mutasiID)
+	if err != nil {
+		return nil, err
+	}
+
+	totalBankFee, err := s.repo.GetTotalChangeByCategory(mutasiID, "bank_fee")
+	if err != nil {
+		return nil, err
+	}
+
+	totalInterest, err := s.repo.GetTotalChangeByCategory(mutasiID, "interest")
+	if err != nil {
+		return nil, err
+	}
+
+	totalTax, err := s.repo.GetTotalChangeByCategory(mutasiID, "tax")
+	if err != nil {
+		return nil, err
+	}
+
+	totalDigitalRevenue, err := s.repo.GetTotalChangeByCategory(mutasiID, "digital_revenue")
+	if err != nil {
+		return nil, err
+	}
+
+	totalTransferIn, err := s.repo.GetTotalChangeByCategory(mutasiID, "transfer_in")
+	if err != nil {
+		return nil, err
+	}
+
+	totalTransferOut, err := s.repo.GetTotalChangeByCategory(mutasiID, "transfer_out")
+	if err != nil {
+		return nil, err
+	}
+
+	totalCashWithdrawal, err := s.repo.GetTotalChangeByCategory(mutasiID, "cash_withdrawal")
+	if err != nil {
+		return nil, err
+	}
+
 	startMonthlyBalance, err := s.repo.GetMonthlyBalances(mutasiID, "start")
 	if err != nil {
 		return nil, err
@@ -257,6 +297,16 @@ func (s *Service) getSummary(mutasiID uint) (*OverallSummary, error) {
 
 			TopDebits:  top10Debit,
 			TopCredits: top10Credit,
+
+			AnomalyTransactions: anomalyTransactions,
+
+			TotalBankFee:        totalBankFee,
+			TotalInterest:       totalInterest,
+			TotalTax:            totalTax,
+			TotalDigitalRevenue: totalDigitalRevenue,
+			TotalTransferIn:     totalTransferIn,
+			TotalTransferOut:    totalTransferOut,
+			TotalCashWithdrawal: totalCashWithdrawal,
 		},
 	}, nil
 }

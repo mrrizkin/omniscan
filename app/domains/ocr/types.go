@@ -42,6 +42,16 @@ type Summary struct {
 	TopDebits  []models.MutasiDetail `json:"top_debits"`
 	TopCredits []models.MutasiDetail `json:"top_credits"`
 
+	AnomalyTransactions []models.MutasiDetail `json:"anomaly_transactions"`
+
+	TotalBankFee        float64 `json:"total_bank_fee"`
+	TotalInterest       float64 `json:"total_interest"`
+	TotalTax            float64 `json:"total_tax"`
+	TotalDigitalRevenue float64 `json:"total_digital_revenue"`
+	TotalTransferIn     float64 `json:"total_transfer_in"`
+	TotalTransferOut    float64 `json:"total_transfer_out"`
+	TotalCashWithdrawal float64 `json:"total_cash_withdrawal"`
+
 	AverageCredit float64 `json:"average_credit"`
 	AverageDebit  float64 `json:"average_debit"`
 

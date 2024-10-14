@@ -7,6 +7,7 @@ import (
 	"github.com/mrrizkin/omniscan/app/models"
 	"github.com/mrrizkin/omniscan/app/utils"
 	"github.com/mrrizkin/omniscan/system/database"
+	system_util "github.com/mrrizkin/omniscan/system/utils"
 )
 
 func NewRepo(db *database.Database) *Repo {
@@ -115,6 +116,54 @@ func (r *Repo) GetTopChangeByTransactionType(
 		Limit(limit).
 		Find(&mutasiDetail).Error
 	return mutasiDetail, err
+}
+
+func (r *Repo) GetAnomalyTransactions(
+	mutasiID uint,
+) ([]models.MutasiDetail, error) {
+	var mutasiDetail []models.MutasiDetail
+	err := r.db.Where("mutasi_id = ? AND change%1000000 = 0 AND description1 != 'SALDO AWAL'", mutasiID).
+		Order("change DESC").
+		Find(&mutasiDetail).Error
+	return mutasiDetail, err
+}
+
+func (r *Repo) GetTotalChangeByCategory(
+	mutasiID uint,
+	categoryType string,
+) (float64, error) {
+	var err error
+	var result struct {
+		Total float64
+	}
+
+	wb := system_util.NewWhereBuilder()
+	wb.And("mutasi_id = ?", mutasiID)
+	switch categoryType {
+	case "bank_fee":
+		wb.And("(description1 = 'SWITCHING DB' OR (description1 = 'BI-FAST DB' AND description2 ILIKE '%BIAYA%') OR description1 = 'BIAYA ADM')")
+	case "interest":
+		wb.And("description1 = 'BUNGA'")
+	case "tax":
+		wb.And("description1 ILIKE '%PAJAK%'")
+	case "digital_revenue":
+		wb.And("description2 ILIKE '%ESPAY DEBIT%'")
+	case "transfer_in":
+		wb.And("transaction_type = 'credit' AND (description1 LIKE '%TRSF%' OR description1 = 'SWITCHING CR')")
+		wb.And("description2 NOT LIKE '%ESPAY DEBIT%'")
+	case "transfer_out":
+		wb.And("transaction_type = 'debit' AND (description1 LIKE '%TRSF%' OR (description1 = 'SWITCHING DB' AND balance = 0) OR (description1 = 'BI-FAST DB' AND description2 ILIKE '%BIF TRANSFER%') OR description1 ILIKE '%BYR%')")
+	case "cash_withdrawal":
+		wb.And("description1 ILIKE '%TARIKAN ATM%'")
+	default:
+		return 0, fmt.Errorf("categoryType: %s is not supportetd", categoryType)
+	}
+
+	where, whereArgs := wb.Get()
+	err = r.db.Where(where, whereArgs...).
+		Model(models.MutasiDetail{}).
+		Select("SUM(change) as total").Scan(&result).Error
+	return result.Total, err
 }
 
 func (r *Repo) GetMonthlyBalances(mutasiID uint, balanceType string) ([]MonthlyAmount, error) {
