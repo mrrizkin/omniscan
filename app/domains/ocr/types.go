@@ -26,6 +26,7 @@ type PaginatedMutasi struct {
 type ScanMutasiPayload struct {
 	Provider string `form:"provider"  validate:"required"`
 	TimeBomb string `form:"time_bomb"`
+	Summary  string `form:"summary"`
 }
 
 type ScanMutasiResponse struct {
@@ -37,60 +38,71 @@ type ScanMutasiResponse struct {
 }
 
 type Summary struct {
-	StartBalance   float64 `json:"start_balance"`
-	AverageBalance float64 `json:"average_balance"`
-	EndBalance     float64 `json:"end_balance"`
+	StartBalance   float64 `json:"start_balance,omitempty"`
+	AverageBalance float64 `json:"average_balance,omitempty"`
+	EndBalance     float64 `json:"end_balance,omitempty"`
 
-	TotalIncome  float64 `json:"total_income"`
-	TotalExpense float64 `json:"total_expense"`
+	TotalIncome  float64 `json:"total_income,omitempty"`
+	TotalExpense float64 `json:"total_expense,omitempty"`
 
-	TopDebits  []models.MutasiDetail `json:"top_debits"`
-	TopCredits []models.MutasiDetail `json:"top_credits"`
+	TopDebits  []models.MutasiDetail `json:"top_debits,omitempty"`
+	TopCredits []models.MutasiDetail `json:"top_credits,omitempty"`
 
-	AnomalyTransactions []models.MutasiDetail `json:"anomaly_transactions"`
+	AnomalyTransactions []models.MutasiDetail `json:"anomaly_transactions,omitempty"`
 
-	TotalBankFee        float64 `json:"total_bank_fee"`
-	TotalInterest       float64 `json:"total_interest"`
-	TotalTax            float64 `json:"total_tax"`
-	TotalDigitalRevenue float64 `json:"total_digital_revenue"`
-	TotalTransferIn     float64 `json:"total_transfer_in"`
-	TotalTransferOut    float64 `json:"total_transfer_out"`
-	TotalCashWithdrawal float64 `json:"total_cash_withdrawal"`
+	TotalBankFee        float64 `json:"total_bank_fee,omitempty"`
+	TotalInterest       float64 `json:"total_interest,omitempty"`
+	TotalTax            float64 `json:"total_tax,omitempty"`
+	TotalDigitalRevenue float64 `json:"total_digital_revenue,omitempty"`
+	TotalTransferIn     float64 `json:"total_transfer_in,omitempty"`
+	TotalTransferOut    float64 `json:"total_transfer_out,omitempty"`
+	TotalCashWithdrawal float64 `json:"total_cash_withdrawal,omitempty"`
 
-	AverageCredit float64 `json:"average_credit"`
-	AverageDebit  float64 `json:"average_debit"`
+	AverageCredit float64 `json:"average_credit,omitempty"`
+	AverageDebit  float64 `json:"average_debit,omitempty"`
 
-	FrequencyDebit  float64 `json:"frequency_debit"`
-	FrequencyCredit float64 `json:"frequency_credit"`
+	FrequencyDebit  float64 `json:"frequency_debit,omitempty"`
+	FrequencyCredit float64 `json:"frequency_credit,omitempty"`
 }
 
 type MonthlySummary struct {
-	StartBalance   []MonthlyAmount `json:"start_balance"`
-	AverageBalance []MonthlyAmount `json:"average_balance"`
-	EndBalance     []MonthlyAmount `json:"end_balance"`
+	StartBalance   []MonthlyAmount `json:"start_balance,omitempty"`
+	AverageBalance []MonthlyAmount `json:"average_balance,omitempty"`
+	EndBalance     []MonthlyAmount `json:"end_balance,omitempty"`
 
-	TotalIncome  []MonthlyAmount `json:"total_income"`
-	TotalExpense []MonthlyAmount `json:"total_expense"`
+	TotalIncome  []MonthlyAmount `json:"total_income,omitempty"`
+	TotalExpense []MonthlyAmount `json:"total_expense,omitempty"`
 
-	TopDebits  []MonthlyMutasiDetails `json:"top_debits"`
-	TopCredits []MonthlyMutasiDetails `json:"top_credits"`
+	TopDebits  []MonthlyMutasiDetails `json:"top_debits,omitempty"`
+	TopCredits []MonthlyMutasiDetails `json:"top_credits,omitempty"`
 
-	AverageCredit []MonthlyAmount `json:"average_credit"`
-	AverageDebit  []MonthlyAmount `json:"average_debit"`
+	AverageCredit []MonthlyAmount `json:"average_credit,omitempty"`
+	AverageDebit  []MonthlyAmount `json:"average_debit,omitempty"`
 
-	FrequencyDebit  []MonthlyAmount `json:"frequency_debit"`
-	FrequencyCredit []MonthlyAmount `json:"frequency_credit"`
+	FrequencyDebit  []MonthlyAmount `json:"frequency_debit,omitempty"`
+	FrequencyCredit []MonthlyAmount `json:"frequency_credit,omitempty"`
 }
 
 type OverallSummary struct {
-	AllTime Summary        `json:"all_time"`
-	Monthly MonthlySummary `json:"monthly"`
+	AllTime Summary        `json:"all_time,omitempty"`
+	Monthly MonthlySummary `json:"monthly,omitempty"`
 }
 
 type Meta struct {
 	FileName string `json:"file_name"`
 	FileSize int64  `json:"file_size"`
 	FileMime string `json:"file_mime"`
+
+	Title        string `json:"title"`
+	Author       string `json:"author"`
+	Subject      string `json:"subject"`
+	Keywords     string `json:"keywords"`
+	Creator      string `json:"creator"`
+	Producer     string `json:"producer"`
+	CreationDate string `json:"creation_date"`
+	ModDate      string `json:"mod_date"`
+	PageCount    int    `json:"page_count"`
+	PDFVersion   string `json:"pdf_version"`
 }
 
 type MonthlyAmount struct {

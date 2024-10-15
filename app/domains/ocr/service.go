@@ -1,14 +1,11 @@
 package ocr
 
 import (
-	"bytes"
 	"errors"
-	"io"
+	"fmt"
 	"mime/multipart"
-	"net/http"
-	"time"
+	"strings"
 
-	"github.com/mrrizkin/omniscan/app/models"
 	"github.com/mrrizkin/omniscan/system/stypes"
 	mutasi_scanner "github.com/mrrizkin/omniscan/third-party/mutasi-scanner"
 	"github.com/mrrizkin/omniscan/third-party/mutasi-scanner/types"
@@ -52,339 +49,109 @@ func (s *Service) ScanMutasi(
 		return nil, err
 	}
 
+	metadata, err := mutasi_scanner.ExtractMutasiMetadataFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	summaryField := make([]string, 0)
+	if payload.Summary != "" {
+		fmt.Println(payload.Summary)
+		fields := strings.Split(payload.Summary, ",")
+		for _, field := range fields {
+			summaryField = append(summaryField, strings.TrimSpace(field))
+		}
+	}
+
 	if s.repo.IsFileAlreadyScanned(fileHeader.Filename) {
-		mutasi, _ := s.repo.GetMutasiByFilename(fileHeader.Filename)
-		summary, err := s.getSummary(mutasi.ID)
-		if err != nil {
-			return nil, err
-		}
-
-		transactions := make([]*types.Transaction, len(mutasi.MutasiDetail))
-		for i, detail := range mutasi.MutasiDetail {
-			transactions[i].Date = detail.Date
-			transactions[i].Description1 = detail.Description1
-			transactions[i].Description2 = detail.Description2
-			transactions[i].Branch = detail.Branch
-			transactions[i].Change = detail.Change
-			transactions[i].TransactionType = detail.TransactionType
-			transactions[i].Balance = detail.Balance
-		}
-
-		scanResult := types.ScanResult{
-			Transactions: transactions,
-			Info: types.ScanInfo{
-				Bank:     mutasi.Bank,
-				Produk:   mutasi.Produk,
-				Rekening: mutasi.Rekening,
-				Periode:  mutasi.Periode,
-			},
-		}
-
-		response := ScanMutasiResponse{
-			MutasiID:   mutasi.ID,
-			ScanResult: &scanResult,
-			Meta: Meta{
-				FileName: fileHeader.Filename,
-				FileSize: fileHeader.Size,
-				FileMime: http.DetectContentType(file),
-			},
-			Summary: *summary,
-		}
-
-		return &response, nil
+		return s.getExistingMutasiResponse(fileHeader, file, metadata, summaryField)
 	}
 
-	scanResult, err := s.scanner.Scan(payload.Provider, file)
-	if err != nil {
-		return nil, err
-	}
-
-	var mutasiExpired time.Time
-	if payload.TimeBomb == "" {
-		mutasiExpired = time.Now().Add(24 * time.Hour)
-	} else {
-		mutasiExpired, err = time.Parse("2006-01-02 15:04:05", payload.TimeBomb)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	mutasi := &models.Mutasi{
-		Bank:     scanResult.Info.Bank,
-		Filename: fileHeader.Filename,
-		Produk:   scanResult.Info.Produk,
-		Rekening: scanResult.Info.Rekening,
-		Periode:  scanResult.Info.Periode,
-		Expired:  &mutasiExpired,
-	}
-
-	err = s.repo.Aggregate(mutasi)
-	if err != nil {
-		return nil, err
-	}
-
-	mutasiDetail := make([]models.MutasiDetail, len(scanResult.Transactions))
-	for i, detail := range scanResult.Transactions {
-		mutasiDetail[i].Date = detail.Date
-		mutasiDetail[i].MutasiID = mutasi.ID
-		mutasiDetail[i].Description1 = detail.Description1
-		mutasiDetail[i].Description2 = detail.Description2
-		mutasiDetail[i].Branch = detail.Branch
-		mutasiDetail[i].Change = detail.Change
-		mutasiDetail[i].TransactionType = detail.TransactionType
-		mutasiDetail[i].Balance = detail.Balance
-	}
-
-	err = s.repo.AggregateDetail(mutasiDetail)
-	if err != nil {
-		return nil, err
-	}
-
-	summary, err := s.getSummary(mutasi.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	response := ScanMutasiResponse{
-		MutasiID:   mutasi.ID,
-		ScanResult: scanResult,
-		Meta: Meta{
-			FileName: fileHeader.Filename,
-			FileSize: fileHeader.Size,
-			FileMime: http.DetectContentType(file),
-		},
-		Summary: *summary,
-	}
-
-	return &response, nil
+	return s.processNewMutasi(payload, fileHeader, file, metadata, summaryField)
 }
 
 func (s *Service) GetSummary(mutasiID uint) (*OverallSummary, error) {
 	return s.getSummary(mutasiID)
 }
 
-func (s *Service) getSummary(mutasiID uint) (*OverallSummary, error) {
-	startBalance, err := s.repo.GetBalance(mutasiID, "start")
-	if err != nil {
-		return nil, err
-	}
-	avgBalance, err := s.repo.GetBalance(mutasiID, "avg")
-	if err != nil {
-		return nil, err
-	}
-	endBalance, err := s.repo.GetBalance(mutasiID, "end")
-	if err != nil {
-		return nil, err
-	}
-
-	totalIncome, err := s.repo.GetTransactionStatsByTransactionType(mutasiID, "credit", "total")
-	if err != nil {
-		return nil, err
-	}
-	totalExpenses, err := s.repo.GetTransactionStatsByTransactionType(mutasiID, "debit", "total")
+func (s *Service) getExistingMutasiResponse(
+	fileHeader *multipart.FileHeader,
+	file []byte,
+	metadata *types.PDFMetadata,
+	summaryField []string,
+) (*ScanMutasiResponse, error) {
+	mutasi, err := s.repo.GetMutasiByFilename(fileHeader.Filename)
 	if err != nil {
 		return nil, err
 	}
 
-	avgDebit, err := s.repo.GetTransactionStatsByTransactionType(mutasiID, "debit", "avg")
-	if err != nil {
-		return nil, err
-	}
-	avgCredit, err := s.repo.GetTransactionStatsByTransactionType(mutasiID, "credit", "avg")
+	summary, err := s.getSummary(mutasi.ID, summaryField...)
 	if err != nil {
 		return nil, err
 	}
 
-	freqDebit, err := s.repo.GetTransactionStatsByTransactionType(mutasiID, "debit", "count")
-	if err != nil {
-		return nil, err
-	}
-	freqCredit, err := s.repo.GetTransactionStatsByTransactionType(mutasiID, "credit", "count")
-	if err != nil {
-		return nil, err
-	}
+	transactions := s.convertMutasiDetailToTransactions(mutasi.MutasiDetail)
 
-	top10Debit, err := s.repo.GetTopChangeByTransactionType(mutasiID, "debit", 10)
-	if err != nil {
-		return nil, err
-	}
-	top10Credit, err := s.repo.GetTopChangeByTransactionType(mutasiID, "credit", 10)
-	if err != nil {
-		return nil, err
-	}
-
-	anomalyTransactions, err := s.repo.GetAnomalyTransactions(mutasiID)
-	if err != nil {
-		return nil, err
-	}
-
-	totalBankFee, err := s.repo.GetTotalChangeByCategory(mutasiID, "bank_fee")
-	if err != nil {
-		return nil, err
-	}
-
-	totalInterest, err := s.repo.GetTotalChangeByCategory(mutasiID, "interest")
-	if err != nil {
-		return nil, err
-	}
-
-	totalTax, err := s.repo.GetTotalChangeByCategory(mutasiID, "tax")
-	if err != nil {
-		return nil, err
-	}
-
-	totalDigitalRevenue, err := s.repo.GetTotalChangeByCategory(mutasiID, "digital_revenue")
-	if err != nil {
-		return nil, err
-	}
-
-	totalTransferIn, err := s.repo.GetTotalChangeByCategory(mutasiID, "transfer_in")
-	if err != nil {
-		return nil, err
-	}
-
-	totalTransferOut, err := s.repo.GetTotalChangeByCategory(mutasiID, "transfer_out")
-	if err != nil {
-		return nil, err
-	}
-
-	totalCashWithdrawal, err := s.repo.GetTotalChangeByCategory(mutasiID, "cash_withdrawal")
-	if err != nil {
-		return nil, err
-	}
-
-	startMonthlyBalance, err := s.repo.GetMonthlyBalances(mutasiID, "start")
-	if err != nil {
-		return nil, err
-	}
-	avgMonthlyBalance, err := s.repo.GetMonthlyBalances(mutasiID, "avg")
-	if err != nil {
-		return nil, err
-	}
-	endMonthlyBalance, err := s.repo.GetMonthlyBalances(mutasiID, "end")
-	if err != nil {
-		return nil, err
-	}
-
-	totalMonthlyIncome, err := s.repo.GetMonthlyTransactionStatsByTransactionType(
-		mutasiID,
-		"credit",
-		"total",
-	)
-	if err != nil {
-		return nil, err
-	}
-	totalMonthlyExpenses, err := s.repo.GetMonthlyTransactionStatsByTransactionType(
-		mutasiID,
-		"debit",
-		"total",
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	avgMonthlyDebit, err := s.repo.GetMonthlyTransactionStatsByTransactionType(
-		mutasiID,
-		"debit",
-		"avg",
-	)
-	if err != nil {
-		return nil, err
-	}
-	avgMonthlyCredit, err := s.repo.GetMonthlyTransactionStatsByTransactionType(
-		mutasiID,
-		"credit",
-		"avg",
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	freqMonthlyDebit, err := s.repo.GetMonthlyTransactionStatsByTransactionType(
-		mutasiID,
-		"debit",
-		"count",
-	)
-	if err != nil {
-		return nil, err
-	}
-	freqMonthlyCredit, err := s.repo.GetMonthlyTransactionStatsByTransactionType(
-		mutasiID,
-		"credit",
-		"count",
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	topMonthly10Debit, err := s.repo.GetMonthlyTopChangeByTransactionType(mutasiID, "debit", 10)
-	if err != nil {
-		return nil, err
-	}
-	topMonthly10Credit, err := s.repo.GetMonthlyTopChangeByTransactionType(mutasiID, "credit", 10)
-	if err != nil {
-		return nil, err
-	}
-
-	return &OverallSummary{
-		Monthly: MonthlySummary{
-			StartBalance:   startMonthlyBalance,
-			AverageBalance: avgMonthlyBalance,
-			EndBalance:     endMonthlyBalance,
-
-			TotalIncome:  totalMonthlyIncome,
-			TotalExpense: totalMonthlyExpenses,
-
-			AverageDebit:  avgMonthlyDebit,
-			AverageCredit: avgMonthlyCredit,
-
-			FrequencyDebit:  freqMonthlyDebit,
-			FrequencyCredit: freqMonthlyCredit,
-
-			TopDebits:  topMonthly10Debit,
-			TopCredits: topMonthly10Credit,
+	scanResult := types.ScanResult{
+		Transactions: transactions,
+		Info: types.ScanInfo{
+			Bank:     mutasi.Bank,
+			Produk:   mutasi.Produk,
+			Rekening: mutasi.Rekening,
+			Periode:  mutasi.Periode,
 		},
-		AllTime: Summary{
-			StartBalance:   startBalance,
-			AverageBalance: avgBalance,
-			EndBalance:     endBalance,
+	}
 
-			TotalIncome:  totalIncome,
-			TotalExpense: totalExpenses,
-
-			AverageDebit:  avgDebit,
-			AverageCredit: avgCredit,
-
-			FrequencyDebit:  freqDebit,
-			FrequencyCredit: freqCredit,
-
-			TopDebits:  top10Debit,
-			TopCredits: top10Credit,
-
-			AnomalyTransactions: anomalyTransactions,
-
-			TotalBankFee:        totalBankFee,
-			TotalInterest:       totalInterest,
-			TotalTax:            totalTax,
-			TotalDigitalRevenue: totalDigitalRevenue,
-			TotalTransferIn:     totalTransferIn,
-			TotalTransferOut:    totalTransferOut,
-			TotalCashWithdrawal: totalCashWithdrawal,
-		},
-	}, nil
+	return s.createScanMutasiResponse(
+		mutasi.ID,
+		&scanResult,
+		fileHeader,
+		file,
+		metadata,
+		summary,
+	), nil
 }
 
-func (s *Service) convertMultipartFileToBytes(fileHeader *multipart.FileHeader) ([]byte, error) {
-	file, err := fileHeader.Open()
+func (s *Service) processNewMutasi(
+	payload *ScanMutasiPayload,
+	fileHeader *multipart.FileHeader,
+	file []byte,
+	metadata *types.PDFMetadata,
+	summaryField []string,
+) (*ScanMutasiResponse, error) {
+	scanResult, err := s.scanner.Scan(payload.Provider, file)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
-	buffer := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buffer, file); err != nil {
+	mutasiExpired, err := calculateMutasiExpiry(payload.TimeBomb)
+	if err != nil {
 		return nil, err
 	}
 
-	return buffer.Bytes(), nil
+	mutasi := s.createMutasiModel(scanResult, fileHeader.Filename, mutasiExpired)
+
+	if err := s.repo.Aggregate(mutasi); err != nil {
+		return nil, err
+	}
+
+	mutasiDetail := s.createMutasiDetailModels(scanResult.Transactions, mutasi.ID)
+
+	if err := s.repo.AggregateDetail(mutasiDetail); err != nil {
+		return nil, err
+	}
+
+	summary, err := s.getSummary(mutasi.ID, summaryField...)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.createScanMutasiResponse(
+		mutasi.ID,
+		scanResult,
+		fileHeader,
+		file,
+		metadata,
+		summary,
+	), nil
 }

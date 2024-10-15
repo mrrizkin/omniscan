@@ -12,6 +12,18 @@ func Chunk[T any](slice []T, chunkSize int) [][]T {
 }
 
 func RandomStr(length int) string {
-	str, _ := gonanoid.Generate("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", length)
+	str, _ := gonanoid.Generate(
+		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+		length,
+	)
 	return str
+}
+
+func InArrayString(val string, array []string) bool {
+	for _, v := range array {
+		if v == val {
+			return true
+		}
+	}
+	return false
 }
