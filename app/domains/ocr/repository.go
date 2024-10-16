@@ -181,7 +181,7 @@ func (r *Repo) GetTotalChangeByCategory(
 	wb.And("mutasi_id = ?", mutasiID)
 	switch categoryType {
 	case "bank_fee":
-		wb.And("(description1 = 'SWITCHING DB' OR (description1 = 'BI-FAST DB' AND description2 ILIKE '%BIAYA%') OR description1 = 'BIAYA ADM')")
+		wb.And("((description1 = 'SWITCHING DB' AND balance != 0) OR (description1 = 'BI-FAST DB' AND description2 ILIKE '%BIAYA%') OR description1 = 'BIAYA ADM')")
 	case "interest":
 		wb.And("description1 = 'BUNGA'")
 	case "tax":
