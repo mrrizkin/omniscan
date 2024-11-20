@@ -2,24 +2,32 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-
-	"github.com/mrrizkin/omniscan/app/handlers"
+	"github.com/mrrizkin/omniscan/app/controllers"
+	"github.com/mrrizkin/omniscan/app/providers/app"
 )
 
-func ApiRoutes(api fiber.Router, handler *handlers.Handlers) {
-	v1 := api.Group("/v1", cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept, finteligo-api-token",
-	}))
+func ApiRoutes(
+	app *app.App,
 
-	v1.Get("/mutasis", handler.MutasiFindAll)
-	v1.Post("/scan-mutasi", handler.ScanMutasi)
-	v1.Get("/summary-mutasi/:id", handler.GetSumary)
+	userController *controllers.UserController,
+	eStatementController *controllers.EStatementController,
+) {
+	api := app.ApiRoutes()
+	api.Get("/health", func(c *fiber.Ctx) error {
+		return c.SendString("OK")
+	})
 
-	v1.Get("/user", handler.UserFindAll)
-	v1.Get("/user/:id", handler.UserFindByID)
-	v1.Post("/user", handler.UserCreate)
-	v1.Put("/user/:id", handler.UserUpdate)
-	v1.Delete("/user/:id", handler.UserDelete)
+	// Set up v1 routes
+	v1 := api.Group("/v1")
+
+	v1.Get("/e-statement", eStatementController.EStatementFindAll)
+	v1.Post("/e-statement/scan", eStatementController.EStatementScan)
+	v1.Get("/e-statement/:id/summary", eStatementController.EStatementGetSumary)
+
+	// User routes
+	v1.Get("/user", userController.UserFindAll)
+	v1.Get("/user/:id", userController.UserFindByID)
+	v1.Post("/user", userController.UserCreate)
+	v1.Put("/user/:id", userController.UserUpdate)
+	v1.Delete("/user/:id", userController.UserDelete)
 }

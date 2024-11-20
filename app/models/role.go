@@ -15,14 +15,3 @@ type Role struct {
 	Name            string           `json:"name"`
 	RolePermissions []RolePermission `json:"role_permissions,omitempty" gorm:"foreignKey:RoleID"`
 }
-
-func (*Role) Seed(db *gorm.DB) {
-	data := []Role{
-		{Slug: "super_admin", Name: "Super Administrator"},
-		{Slug: "user", Name: "User"},
-	}
-
-	for _, v := range data {
-		db.FirstOrCreate(&Role{}, v)
-	}
-}

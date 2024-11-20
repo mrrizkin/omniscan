@@ -1,0 +1,28 @@
+User-agent: *
+Disallow: /
+Noindex: /
+Crawl-delay: 31536000
+
+User-agent: Googlebot
+Disallow: /
+Noindex: /
+
+User-agent: Bingbot
+Disallow: /
+Noindex: /
+
+User-agent: Slurp
+Disallow: /
+Noindex: /
+
+User-agent: DuckDuckBot
+Disallow: /
+Noindex: /
+
+User-agent: Baiduspider
+Disallow: /
+Noindex: /
+
+User-agent: YandexBot
+Disallow: /
+Noindex: /

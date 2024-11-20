@@ -1,0 +1,935 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "OmniScan API provides a comprehensive set of endpoints for scanning and analyzing e-statement data.",
+        "title": "OmniScan API",
+        "termsOfService": "https://dak.id/terms/",
+        "contact": {
+            "name": "API Support Team",
+            "url": "https://dak.id/support",
+            "email": "support@dak.id"
+        },
+        "license": {
+            "name": "MIT License",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/api/v1",
+    "paths": {
+        "/e-statements": {
+            "get": {
+                "description": "Retrieve a list of all e-statements with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "E-Statements"
+                ],
+                "summary": "Get all e-statements",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "per_page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved e-statements",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/types.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.EStatement"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/types.PaginationMeta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Scan an e-statement and return the result",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "E-Statements"
+                ],
+                "summary": "Scan an e-statement",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "PDF file to scan",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully scanned e-statement",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/types.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.EStatement"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/e-statements/{id}/summary": {
+            "get": {
+                "description": "Get an e-statement summary",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "E-Statements"
+                ],
+                "summary": "Get an e-statement summary",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "E-Statement ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved e-statement summary",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/types.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/estatement.OverallSummary"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "description": "Retrieve a list of all users with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get all users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "per_page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved users",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/types.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.User"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/definitions/types.PaginationMeta"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new user with the provided information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "User information",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully created user",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/types.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.User"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "description": "Retrieve a user by their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get a user by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved user",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/types.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.User"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a user's information by their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated user information",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated user",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/types.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.User"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a user by their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted user",
+                        "schema": {
+                            "$ref": "#/definitions/types.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/validator.GlobalErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "estatement.MonthlyAmount": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
+        "estatement.MonthlyEStatementDetails": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "e_statement_details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.EStatementDetail"
+                    }
+                }
+            }
+        },
+        "estatement.MonthlySummary": {
+            "type": "object",
+            "properties": {
+                "average_balance": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyAmount"
+                    }
+                },
+                "average_credit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyAmount"
+                    }
+                },
+                "average_debit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyAmount"
+                    }
+                },
+                "end_balance": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyAmount"
+                    }
+                },
+                "frequency_credit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyAmount"
+                    }
+                },
+                "frequency_debit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyAmount"
+                    }
+                },
+                "start_balance": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyAmount"
+                    }
+                },
+                "top_credits": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyEStatementDetails"
+                    }
+                },
+                "top_debits": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyEStatementDetails"
+                    }
+                },
+                "total_expense": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyAmount"
+                    }
+                },
+                "total_income": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/estatement.MonthlyAmount"
+                    }
+                }
+            }
+        },
+        "estatement.OverallSummary": {
+            "type": "object",
+            "properties": {
+                "all_time": {
+                    "$ref": "#/definitions/estatement.Summary"
+                },
+                "monthly": {
+                    "$ref": "#/definitions/estatement.MonthlySummary"
+                }
+            }
+        },
+        "estatement.Summary": {
+            "type": "object",
+            "properties": {
+                "anomaly_transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.EStatementDetail"
+                    }
+                },
+                "average_balance": {
+                    "type": "number"
+                },
+                "average_credit": {
+                    "type": "number"
+                },
+                "average_debit": {
+                    "type": "number"
+                },
+                "end_balance": {
+                    "type": "number"
+                },
+                "frequency_credit": {
+                    "type": "number"
+                },
+                "frequency_debit": {
+                    "type": "number"
+                },
+                "start_balance": {
+                    "type": "number"
+                },
+                "top_credits": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.EStatementDetail"
+                    }
+                },
+                "top_debits": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.EStatementDetail"
+                    }
+                },
+                "total_bank_fee": {
+                    "type": "number"
+                },
+                "total_cash_withdrawal": {
+                    "type": "number"
+                },
+                "total_digital_revenue": {
+                    "type": "number"
+                },
+                "total_expense": {
+                    "type": "number"
+                },
+                "total_income": {
+                    "type": "number"
+                },
+                "total_interest": {
+                    "type": "number"
+                },
+                "total_tax": {
+                    "type": "number"
+                },
+                "total_transfer_in": {
+                    "type": "number"
+                },
+                "total_transfer_out": {
+                    "type": "number"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.EStatement": {
+            "type": "object",
+            "properties": {
+                "bank": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "e_statement_detail": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.EStatementDetail"
+                    }
+                },
+                "expired": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "periode": {
+                    "type": "string"
+                },
+                "produk": {
+                    "type": "string"
+                },
+                "rekening": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.EStatementDetail": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "branch": {
+                    "type": "string"
+                },
+                "change": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "description1": {
+                    "type": "string"
+                },
+                "description2": {
+                    "type": "string"
+                },
+                "e_statement": {
+                    "$ref": "#/definitions/models.EStatement"
+                },
+                "e_statement_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "transaction_type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Permission": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Role": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role_permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.RolePermission"
+                    }
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RolePermission": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.Permission"
+                },
+                "permission_id": {
+                    "type": "integer"
+                },
+                "role": {
+                    "$ref": "#/definitions/models.Role"
+                },
+                "role_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/models.Role"
+                },
+                "role_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.PaginationMeta": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "page_count": {
+                    "type": "integer"
+                },
+                "per_page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "debug": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "meta": {
+                    "$ref": "#/definitions/types.PaginationMeta"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "validator.GlobalErrorResponse": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "omniscan-api-token",
+            "in": "header"
+        }
+    }
+}

@@ -42,4 +42,7 @@ public/build
 
 node_modules
 
-database.*
+.database*
+*.db*
+
+public/hot
