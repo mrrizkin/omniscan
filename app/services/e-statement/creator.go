@@ -1,12 +1,11 @@
 package estatement
 
 import (
-	"mime/multipart"
-	"net/http"
 	"time"
 
 	"github.com/mrrizkin/omniscan/app/models"
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/types"
+	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
 )
 
 func (s *EStatementService) createEStatementModel(
@@ -47,29 +46,13 @@ func (s *EStatementService) createEStatementDetailModels(
 func (s *EStatementService) createScanEStatementResponse(
 	eStatementID uint,
 	scanResult *types.ScanResult,
-	fileHeader *multipart.FileHeader,
-	file []byte,
-	metadata *types.PDFMetadata,
+	metadata pdfextract.Metadata,
 	summary *OverallSummary,
 ) *ScanEStatementResponse {
 	return &ScanEStatementResponse{
 		EStatementID: eStatementID,
 		ScanResult:   scanResult,
-		Meta: Meta{
-			FileName:     fileHeader.Filename,
-			FileSize:     fileHeader.Size,
-			FileMime:     http.DetectContentType(file),
-			Title:        metadata.Title,
-			Author:       metadata.Author,
-			Subject:      metadata.Subject,
-			Keywords:     metadata.Keywords,
-			Creator:      metadata.Creator,
-			Producer:     metadata.Producer,
-			CreationDate: metadata.CreationDate,
-			ModDate:      metadata.ModDate,
-			PageCount:    metadata.PageCount,
-			PDFVersion:   metadata.PDFVersion,
-		},
-		Summary: *summary,
+		Meta:         metadata,
+		Summary:      *summary,
 	}
 }

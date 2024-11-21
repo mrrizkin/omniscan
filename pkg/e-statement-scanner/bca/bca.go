@@ -1,13 +1,8 @@
 package bca
 
 import (
-	"bytes"
-	"fmt"
-	"io"
-
-	"github.com/ledongthuc/pdf"
-
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/types"
+	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
 )
 
 type BCA struct{}
@@ -16,41 +11,13 @@ func New() *BCA {
 	return &BCA{}
 }
 
-func (bca *BCA) ProcessFromPath(path string) (*types.ScanResult, error) {
-	f, pdfR, err := pdf.Open(path)
-	defer func() {
-		_ = f.Close()
-	}()
+func (bca *BCA) ProcessFromBytes(filename string, b []byte) (*types.ScanResult, error) {
+	pdfReader, err := pdfextract.NewPDFReader(b, filename)
 	if err != nil {
 		return nil, err
 	}
-	trx, header, err := processPdf(pdfR)
-	if err != nil {
-		return nil, err
-	}
-
-	return bca.maptrx(header, trx), nil
-}
-func (bca *BCA) ProcessFromReader(r io.Reader) (*types.ScanResult, error) {
-	b, err := io.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-	trx, err := bca.ProcessFromBytes(b)
-	if err != nil {
-		return nil, err
-	}
-
-	return trx, nil
-}
-func (bca *BCA) ProcessFromBytes(b []byte) (*types.ScanResult, error) {
-	bytesR := bytes.NewReader(b)
-	fmt.Printf("bytesR: %v\n", bytesR)
-	pdfR, err := pdf.NewReader(bytesR, bytesR.Size())
-	if err != nil {
-		return nil, err
-	}
-	trx, header, err := processPdf(pdfR)
+	defer pdfReader.Close()
+	trx, header, err := processPdf(pdfReader)
 	if err != nil {
 		return nil, err
 	}

@@ -2,14 +2,11 @@ package types
 
 import (
 	"encoding/json"
-	"io"
 	"time"
 )
 
 type EStatementScanner interface {
-	ProcessFromPath(path string) (*ScanResult, error)
-	ProcessFromReader(r io.Reader) (*ScanResult, error)
-	ProcessFromBytes(b []byte) (*ScanResult, error)
+	ProcessFromBytes(filname string, b []byte) (*ScanResult, error)
 }
 
 type Transaction struct {

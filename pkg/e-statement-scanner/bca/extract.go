@@ -2,11 +2,10 @@ package bca
 
 import (
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/ledongthuc/pdf"
+	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
 )
 
 var yearRegex = regexp.MustCompile(`\d\d\d\d`)
@@ -27,7 +26,7 @@ var months = []string{
 
 // this is the internal function called by the exported
 // ProcessPdf*** functions
-func processPdf(pdfR *pdf.Reader) (Transactions, Header, error) {
+func processPdf(pdfR *pdfextract.PDFReader) (Transactions, Header, error) {
 	totalPage := pdfR.NumPage()
 	transactions := make([]*Transaction, 0)
 	var currentTransaction *Transaction = nil
@@ -39,22 +38,22 @@ func processPdf(pdfR *pdf.Reader) (Transactions, Header, error) {
 		Periode:  "",
 	}
 	for pageIndex := 1; pageIndex <= totalPage; pageIndex++ {
-		p := pdfR.Page(pageIndex)
-		if p.V.IsNull() {
-			continue
+		p, err := pdfR.Page(pageIndex)
+		if err != nil {
+			return nil, header, err
 		}
 
-		unsortedRows, _ := p.GetTextByRow()
-		sortedRows := make(rowSortable, len(unsortedRows))
-		copy(sortedRows, unsortedRows)
-		sort.Sort(sortedRows)
+		sortedRows, err := p.GetTextByRow()
+		if err != nil {
+			return nil, header, err
+		}
 		aftTanggal := false
 		shouldStopProcessing := false
 		for _, row := range sortedRows {
 			if aftTanggal {
 				isNew, currentTransaction, shouldStopProcessing = IngestRow(
 					currentTransaction,
-					row,
+					&row,
 					year,
 				)
 				if isNew {

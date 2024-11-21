@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ledongthuc/pdf"
+	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
 )
 
 type Transaction struct {
@@ -58,10 +58,10 @@ const summaryFirstCol leftCol = 180.18
 // be added to a transaction slice
 func IngestRow(
 	prevT *Transaction,
-	row *pdf.Row,
+	row *pdfextract.Row,
 	year string,
 ) (isNew bool, t *Transaction, shouldStopProcessing bool) {
-	words := make([]pdf.Text, len(row.Content))
+	words := make([]pdfextract.Text, len(row.Content))
 	copy(words, row.Content)
 	if len(words) < 2 {
 		if prevT == nil {
@@ -104,7 +104,7 @@ func IngestRow(
 
 // readSupplementary try to read words in a row that are apart of
 // date and balance information
-func readSupplementary(t *Transaction, words []pdf.Text) (stopProcessingNext bool) {
+func readSupplementary(t *Transaction, words []pdfextract.Text) (stopProcessingNext bool) {
 	for i, word := range words {
 		if i == 0 && word.S == "SALDO AWAL" && summaryFirstCol.Is(word.X) {
 			return true

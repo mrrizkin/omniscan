@@ -5,6 +5,7 @@ import (
 
 	"github.com/mrrizkin/omniscan/app/models"
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/types"
+	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
 )
 
 type PaginatedEStatement struct {
@@ -21,9 +22,9 @@ type ScanEStatementPayload struct {
 type ScanEStatementResponse struct {
 	*types.ScanResult
 
-	EStatementID uint           `json:"e_statement_id"`
-	Meta         Meta           `json:"meta"`
-	Summary      OverallSummary `json:"summary"`
+	EStatementID uint                `json:"e_statement_id"`
+	Meta         pdfextract.Metadata `json:"meta"`
+	Summary      OverallSummary      `json:"summary"`
 }
 
 type Summary struct {

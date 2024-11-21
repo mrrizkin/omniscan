@@ -111,7 +111,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/models.EStatement"
+                                            "$ref": "#/definitions/estatement.ScanEStatementResponse"
                                         }
                                     }
                                 }
@@ -588,6 +588,29 @@
                 }
             }
         },
+        "estatement.ScanEStatementResponse": {
+            "type": "object",
+            "properties": {
+                "e_statement_id": {
+                    "type": "integer"
+                },
+                "info": {
+                    "$ref": "#/definitions/types.ScanInfo"
+                },
+                "meta": {
+                    "$ref": "#/definitions/pdfextract.Metadata"
+                },
+                "summary": {
+                    "$ref": "#/definitions/estatement.OverallSummary"
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.Transaction"
+                    }
+                }
+            }
+        },
         "estatement.Summary": {
             "type": "object",
             "properties": {
@@ -668,6 +691,141 @@
                 "valid": {
                     "description": "Valid is true if Time is not NULL",
                     "type": "boolean"
+                }
+            }
+        },
+        "model.Attachment": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "description": "description",
+                    "type": "string"
+                },
+                "fileName": {
+                    "description": "filename",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "id",
+                    "type": "string"
+                },
+                "io.Reader": {},
+                "modTime": {
+                    "description": "time of last modification (optional)",
+                    "type": "string"
+                }
+            }
+        },
+        "model.Box": {
+            "type": "object",
+            "properties": {
+                "rect": {
+                    "description": "Rectangle in user space.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.Rectangle"
+                        }
+                    ]
+                }
+            }
+        },
+        "model.PageBoundaries": {
+            "type": "object",
+            "properties": {
+                "artBox": {
+                    "$ref": "#/definitions/model.Box"
+                },
+                "bleedBox": {
+                    "$ref": "#/definitions/model.Box"
+                },
+                "cropBox": {
+                    "$ref": "#/definitions/model.Box"
+                },
+                "mediaBox": {
+                    "$ref": "#/definitions/model.Box"
+                },
+                "orient": {
+                    "type": "string"
+                },
+                "rot": {
+                    "description": "The effective page rotation.",
+                    "type": "integer"
+                },
+                "trimBox": {
+                    "$ref": "#/definitions/model.Box"
+                }
+            }
+        },
+        "model.ViewerPreferences": {
+            "type": "object",
+            "properties": {
+                "centerWindow": {
+                    "type": "boolean"
+                },
+                "direction": {
+                    "description": "since 1.3",
+                    "type": "integer"
+                },
+                "displayDocTitle": {
+                    "description": "since 1.4",
+                    "type": "boolean"
+                },
+                "duplex": {
+                    "description": "since 1.7",
+                    "type": "integer"
+                },
+                "enforce": {
+                    "description": "since 2.0",
+                    "type": "array",
+                    "items": {}
+                },
+                "fitWindow": {
+                    "type": "boolean"
+                },
+                "hideMenubar": {
+                    "type": "boolean"
+                },
+                "hideToolbar": {
+                    "type": "boolean"
+                },
+                "hideWindowUI": {
+                    "type": "boolean"
+                },
+                "nonFullScreenPageMode": {
+                    "type": "integer"
+                },
+                "numCopies": {
+                    "description": "since 1.7",
+                    "type": "integer"
+                },
+                "pickTrayByPDFSize": {
+                    "description": "since 1.7",
+                    "type": "boolean"
+                },
+                "printArea": {
+                    "description": "since 1.4 to 1.7",
+                    "type": "integer"
+                },
+                "printClip": {
+                    "description": "since 1.4 to 1.7",
+                    "type": "integer"
+                },
+                "printPageRange": {
+                    "description": "since 1.7",
+                    "type": "array",
+                    "items": {}
+                },
+                "printScaling": {
+                    "description": "since 1.6",
+                    "type": "integer"
+                },
+                "viewArea": {
+                    "description": "since 1.4 to 1.7",
+                    "type": "integer"
+                },
+                "viewClip": {
+                    "description": "since 1.4 to 1.7",
+                    "type": "integer"
                 }
             }
         },
@@ -875,6 +1033,143 @@
                 }
             }
         },
+        "pdfextract.Metadata": {
+            "type": "object",
+            "properties": {
+                "appendOnly": {
+                    "type": "boolean"
+                },
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Attachment"
+                    }
+                },
+                "author": {
+                    "type": "string"
+                },
+                "bookmarks": {
+                    "type": "boolean"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creator": {
+                    "type": "string"
+                },
+                "encrypted": {
+                    "type": "boolean"
+                },
+                "form": {
+                    "type": "boolean"
+                },
+                "hybrid": {
+                    "type": "boolean"
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "linearized": {
+                    "type": "boolean"
+                },
+                "modificationDate": {
+                    "type": "string"
+                },
+                "names": {
+                    "type": "boolean"
+                },
+                "pageBoundaries": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/model.PageBoundaries"
+                    }
+                },
+                "pageCount": {
+                    "type": "integer"
+                },
+                "pageLayout": {
+                    "type": "string"
+                },
+                "pageMode": {
+                    "type": "string"
+                },
+                "pageSizes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.Dim"
+                    }
+                },
+                "permissions": {
+                    "type": "integer"
+                },
+                "producer": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "signatures": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "tagged": {
+                    "type": "boolean"
+                },
+                "thumbnails": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                },
+                "usingObjectStreams": {
+                    "type": "boolean"
+                },
+                "usingXRefStreams": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "viewerPreferences": {
+                    "$ref": "#/definitions/model.ViewerPreferences"
+                },
+                "watermarked": {
+                    "type": "boolean"
+                },
+                "xmlmetadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            }
+        },
+        "types.Dim": {
+            "type": "object",
+            "properties": {
+                "height": {
+                    "type": "number"
+                },
+                "width": {
+                    "type": "number"
+                }
+            }
+        },
         "types.PaginationMeta": {
             "type": "object",
             "properties": {
@@ -889,6 +1184,28 @@
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "types.Point": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                }
+            }
+        },
+        "types.Rectangle": {
+            "type": "object",
+            "properties": {
+                "ll": {
+                    "$ref": "#/definitions/types.Point"
+                },
+                "ur": {
+                    "$ref": "#/definitions/types.Point"
                 }
             }
         },
@@ -909,6 +1226,49 @@
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.ScanInfo": {
+            "type": "object",
+            "properties": {
+                "bank": {
+                    "type": "string"
+                },
+                "periode": {
+                    "type": "string"
+                },
+                "produk": {
+                    "type": "string"
+                },
+                "rekening": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.Transaction": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "branch": {
+                    "type": "string"
+                },
+                "change": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "description1": {
+                    "type": "string"
+                },
+                "description2": {
+                    "type": "string"
+                },
+                "transaction_type": {
                     "type": "string"
                 }
             }

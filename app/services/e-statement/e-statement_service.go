@@ -8,6 +8,7 @@ import (
 	"github.com/mrrizkin/omniscan/app/providers/logger"
 	"github.com/mrrizkin/omniscan/app/repositories"
 	estatementscanner "github.com/mrrizkin/omniscan/pkg/e-statement-scanner"
+	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
 
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/types"
 )
@@ -62,11 +63,20 @@ func (s *EStatementService) ScanEStatement(
 		return nil, err
 	}
 
-	metadata, err := estatementscanner.ExtractEStatementMetadataFile(filePath)
+	pdfMetadata, err := pdfextract.NewPDFMetadata(file, fileHeader.Filename)
 	if err != nil {
-		s.log.Error("failed to extract e-statement metadata", "err", err)
+		s.log.Error("failed to create pdf metadata", "err", err)
 		return nil, err
 	}
+	defer pdfMetadata.Close()
+
+	err = pdfMetadata.ParseXMLMetadata()
+	if err != nil {
+		s.log.Error("failed to parse pdf metadata", "err", err)
+		return nil, err
+	}
+
+	metadata := pdfMetadata.Metadata()
 
 	summaryField := make([]string, 0)
 	if payload.Summary != "" {
@@ -77,7 +87,7 @@ func (s *EStatementService) ScanEStatement(
 	}
 
 	if s.repo.IsFileAlreadyScanned(fileHeader.Filename) {
-		return s.getExistingEStatementResponse(fileHeader, file, metadata, summaryField)
+		return s.getExistingEStatementResponse(fileHeader, metadata, summaryField)
 	}
 
 	return s.processNewEStatement(payload, fileHeader, file, metadata, summaryField)
@@ -89,8 +99,7 @@ func (s *EStatementService) GetSummary(eStatementID uint) (*OverallSummary, erro
 
 func (s *EStatementService) getExistingEStatementResponse(
 	fileHeader *multipart.FileHeader,
-	file []byte,
-	metadata *types.PDFMetadata,
+	metadata pdfextract.Metadata,
 	summaryField []string,
 ) (*ScanEStatementResponse, error) {
 	eStatement, err := s.repo.GetEStatementByFilename(fileHeader.Filename)
@@ -120,8 +129,6 @@ func (s *EStatementService) getExistingEStatementResponse(
 	return s.createScanEStatementResponse(
 		eStatement.ID,
 		&scanResult,
-		fileHeader,
-		file,
 		metadata,
 		summary,
 	), nil
@@ -131,10 +138,10 @@ func (s *EStatementService) processNewEStatement(
 	payload *ScanEStatementPayload,
 	fileHeader *multipart.FileHeader,
 	file []byte,
-	metadata *types.PDFMetadata,
+	metadata pdfextract.Metadata,
 	summaryField []string,
 ) (*ScanEStatementResponse, error) {
-	scanResult, err := s.scanner.Scan(payload.Provider, file)
+	scanResult, err := s.scanner.Scan(payload.Provider, fileHeader.Filename, file)
 	if err != nil {
 		s.log.Error("failed to scan e-statement when scanning", "err", err)
 		return nil, err
@@ -169,8 +176,6 @@ func (s *EStatementService) processNewEStatement(
 	return s.createScanEStatementResponse(
 		eStatement.ID,
 		scanResult,
-		fileHeader,
-		file,
 		metadata,
 		summary,
 	), nil

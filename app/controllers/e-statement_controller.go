@@ -88,7 +88,7 @@ func (c *EStatementController) EStatementFindAll(ctx *fiber.Ctx) error {
 //	@Accept			multipart/form-data
 //	@Produce		json
 //	@Param			file	formData	file		true	"PDF file to scan"
-//	@Success		200		{object}	types.Response{data=models.EStatement}	"Successfully scanned e-statement"
+//	@Success		200		{object}	types.Response{data=estatement.ScanEStatementResponse}	"Successfully scanned e-statement"
 //	@Failure		400		{object}	validator.GlobalErrorResponse		"Bad request"
 //	@Failure		500		{object}	validator.GlobalErrorResponse		"Internal server error"
 //	@Router			/e-statements [post]
