@@ -8,7 +8,7 @@
         "dev:assets": "vite",
         "dev:app": "air",
         "build:assets": "vite build",
-        "build:app": "go build ./main.go",
+        "build:app": "go build -o omniscan",
         "dev": "concurrently \"pnpm dev:assets\" \"bash -c 'sleep 5 && pnpm dev:app'\"",
         "build": "pnpm build:assets && pnpm build:app",
         "generate:swagger": "swag init -g ./app/providers/app/app.go -ot json -o ./public/docs --pd --parseInternal"
