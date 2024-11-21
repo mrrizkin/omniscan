@@ -147,6 +147,16 @@ func (s *EStatementService) processNewEStatement(
 		return nil, err
 	}
 
+	if scanResult == nil {
+		s.log.Error("scan result is nil")
+		return nil, errors.New("scan result is nil")
+	}
+
+	if len(scanResult.Transactions) == 0 {
+		s.log.Error("transactions is empty")
+		return nil, errors.New("transactions is empty")
+	}
+
 	expiredEStatement, err := calculateEStatementExpiry(payload.TimeBomb)
 	if err != nil {
 		s.log.Error("failed to calculate e-statement expiry", "err", err)
