@@ -91,7 +91,7 @@ func (c *EStatementController) EStatementFindAll(ctx *fiber.Ctx) error {
 //	@Success		200		{object}	types.Response{data=estatement.ScanEStatementResponse}	"Successfully scanned e-statement"
 //	@Failure		400		{object}	validator.GlobalErrorResponse		"Bad request"
 //	@Failure		500		{object}	validator.GlobalErrorResponse		"Internal server error"
-//	@Router			/e-statements [post]
+//	@Router			/e-statements/scan [post]
 func (c *EStatementController) EStatementScan(ctx *fiber.Ctx) error {
 	var payload estatement.ScanEStatementPayload
 
