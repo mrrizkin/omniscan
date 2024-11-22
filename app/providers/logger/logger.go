@@ -41,10 +41,12 @@ func (log *Logger) Warn(msg string, args ...interface{}) {
 }
 
 func (log *Logger) Error(msg string, args ...interface{}) {
+	args = append(args, "stack_trace", stackTrace())
 	log.provider.Error(msg, args...)
 }
 
 func (log *Logger) Fatal(msg string, args ...interface{}) {
+	args = append(args, "stack_trace", stackTrace())
 	log.provider.Fatal(msg, args...)
 }
 

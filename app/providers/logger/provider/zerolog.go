@@ -3,7 +3,6 @@ package provider
 import (
 	"io"
 	"os"
-	"runtime/debug"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -69,23 +68,19 @@ func Zerolog(config *config.App) (*ZeroLogger, error) {
 
 // usage
 func (z *ZeroLogger) Info(msg string, args ...interface{}) {
-	go z.argsParser(z.Logger.Info(), args...).Msg(msg)
+	z.argsParser(z.Logger.Info(), args...).Msg(msg)
 }
 
 func (z *ZeroLogger) Warn(msg string, args ...interface{}) {
-	go z.argsParser(z.Logger.Warn(), args...).Msg(msg)
+	z.argsParser(z.Logger.Warn(), args...).Msg(msg)
 }
 
 func (z *ZeroLogger) Error(msg string, args ...interface{}) {
-	args = append(args, "stack_trace", debug.Stack())
-	go z.argsParser(z.Logger.Error(), args...).Msg(msg)
+	z.argsParser(z.Logger.Error(), args...).Msg(msg)
 }
 
 func (z *ZeroLogger) Fatal(msg string, args ...interface{}) {
-	go func(msg string, args ...interface{}) {
-		args = append(args, "stack_trace", debug.Stack())
-		go z.argsParser(z.Logger.Fatal(), args...).Msg(msg)
-	}(msg, args...)
+	z.argsParser(z.Logger.Fatal(), args...).Msg(msg)
 }
 
 func (z *ZeroLogger) GetLogger() interface{} {
