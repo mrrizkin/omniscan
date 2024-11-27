@@ -30,8 +30,10 @@ type Position struct {
 }
 
 type TextObject struct {
-	FontName string
-	Text     string
-	FontSize float64
-	Position Position
+	FontName     string
+	Encoding     string
+	ResourceName string
+	Text         string
+	FontSize     float64
+	Position     Position
 }
