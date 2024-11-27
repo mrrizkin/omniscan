@@ -8,13 +8,13 @@ type Page struct {
 	content []TextObject
 }
 
-func (p *Page) GetTextByRow() (Rows, error) {
+func (p *Page) GetTextByRow(tolerance float64) (Rows, error) {
 	row := make(Rows, 0)
 	currentPosition := 0.0
 	rowIndex := -1
 	for _, object := range p.content {
 		// if object.Position.Y != currentPosition {
-		if !isEqualTolerance(object.Position.Y, currentPosition, 2.0) {
+		if !isEqualTolerance(object.Position.Y, currentPosition, tolerance) {
 			row = append(row, Row{
 				Content: []Text{{
 					Font:     object.FontName,
