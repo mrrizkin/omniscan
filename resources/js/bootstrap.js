@@ -1,4 +1,8 @@
 import "flyonui/flyonui";
+import "../../node_modules/apexcharts/dist/apexcharts.css";
+import "../../node_modules/apexcharts/dist/apexcharts.min.js";
+import "./apexcharts-helper.js";
+import "../../node_modules/lodash/lodash.min.js";
 import axios from "axios";
 import Alpine from "alpinejs";
 

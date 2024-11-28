@@ -26,7 +26,9 @@
     },
     "dependencies": {
         "alpinejs": "^3.14.3",
+        "apexcharts": "^4.1.0",
         "axios": "^1.7.7",
-        "flyonui": "^1.1.0"
+        "flyonui": "^1.1.0",
+        "lodash": "^4.17.21"
     }
 }
