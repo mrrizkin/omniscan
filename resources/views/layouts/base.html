@@ -1,10 +1,18 @@
 <!doctype html>
-<html lang="en" class="scroll-smooth h-full" data-theme="corporate">
+<html lang="en" class="scroll-smooth h-full" data-theme="light">
     <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="robots" content="noindex,nofollow" />
+        <!-- Gourmet : 'Rubik' -->
+        <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+        <!-- Corporate : 'Public Sans' -->
+        <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+        <!-- Luxury : 'Archivo' -->
+        <link href="https://fonts.googleapis.com/css?family=Archivo:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+        <!-- Soft : 'Montserrat' -->
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
         <title>{% block title -%} {{ appConfig.NAME }}{%- endblock title %}</title>
         {% vite "resources/js/app.js" %}
         {% block head %}

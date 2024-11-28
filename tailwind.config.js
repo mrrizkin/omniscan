@@ -5,7 +5,7 @@ export default {
         extend: {},
     },
     flyonui: {
-        themes: ["corporate"],
+        themes: ["light", "dark", "gourmet", "corporate", "luxury", "soft"],
     },
     plugins: [require("flyonui"), require("flyonui/plugin")],
 };
