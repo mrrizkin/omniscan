@@ -101,5 +101,17 @@ func (p *PDFReader) Close() error {
 		return err
 	}
 
+	// TODO: I don't know why pdf of each page is generated so we need to delete them
+	if files, err := os.ReadDir("./storage"); err == nil {
+		for _, file := range files {
+			if strings.Contains(file.Name(), p.filename) {
+				err := os.Remove("./storage/" + file.Name())
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
 	return nil
 }
