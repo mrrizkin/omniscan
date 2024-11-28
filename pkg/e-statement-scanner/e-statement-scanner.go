@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/bca"
+	bcaledongthuc "github.com/mrrizkin/omniscan/pkg/e-statement-scanner/bca-ledongthuc"
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/types"
 )
 
@@ -15,7 +16,8 @@ type EStatementScanner struct {
 
 func New() *EStatementScanner {
 	scanner := scannerSet{
-		"bca": bca.New(),
+		"bca":            bca.New(),
+		"bca-ledongthuc": bcaledongthuc.New(),
 	}
 
 	return &EStatementScanner{scanner}
