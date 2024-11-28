@@ -67,59 +67,65 @@ func (p *PDFReader) parse(r io.Reader) ([]TextObject, error) {
 
 			// Parse text content
 			if textMatch := textRegex.FindStringSubmatch(line); len(textMatch) > 1 {
-				switch state.CurrentTextObject.Encoding {
-				case "WinAnsiEncoding":
-					encoder := &byteEncoder{&winAnsiEncoding}
-					state.CurrentTextObject.Text += encoder.Decode(textMatch[1])
-				case "MacRomanEncoding":
-					encoder := &byteEncoder{&macRomanEncoding}
-					state.CurrentTextObject.Text += encoder.Decode(textMatch[1])
-				case "Identity-H":
-					var (
-						toUnicode       types.Object
-						toUnicodeStream *types.StreamDict
-						encoder         *ToUnicodeDecoder
-						err             error
-						valid           bool
-						ok              bool
+				if isPDFDocEncoded(textMatch[1]) {
+					state.CurrentTextObject.Text = pdfDocDecode(textMatch[1])
+				} else if isUTF16(textMatch[1]) {
+					state.CurrentTextObject.Text = utf16Decode(textMatch[1][2:])
+				} else {
+					switch state.CurrentTextObject.Encoding {
+					case "WinAnsiEncoding":
+						encoder := &byteEncoder{&winAnsiEncoding}
+						state.CurrentTextObject.Text += encoder.Decode(textMatch[1])
+					case "MacRomanEncoding":
+						encoder := &byteEncoder{&macRomanEncoding}
+						state.CurrentTextObject.Text += encoder.Decode(textMatch[1])
+					case "Identity-H":
+						var (
+							toUnicode       types.Object
+							toUnicodeStream *types.StreamDict
+							encoder         *ToUnicodeDecoder
+							err             error
+							valid           bool
+							ok              bool
 
-						text = textMatch[1]
-					)
+							text = textMatch[1]
+						)
 
-					font, ok := p.fonts.Get(state.CurrentTextObject.ResourceName)
-					if !ok {
-						goto AssignText
+						font, ok := p.fonts.Get(state.CurrentTextObject.ResourceName)
+						if !ok {
+							goto AssignText
+						}
+
+						toUnicode, ok = font.FontDict.Find("ToUnicode")
+						if !ok {
+							goto AssignText
+						}
+
+						toUnicodeStream, valid, err = p.ctx.DereferenceStreamDict(toUnicode)
+						if err != nil {
+							goto AssignText
+						}
+
+						if !valid {
+							goto AssignText
+						}
+
+						err = toUnicodeStream.Decode()
+						if err != nil {
+							goto AssignText
+						}
+
+						encoder, err = NewToUnicodeDecoder(toUnicodeStream.Content)
+						if err != nil {
+							goto AssignText
+						}
+						text = encoder.Decode([]byte(text))
+
+					AssignText:
+						state.CurrentTextObject.Text += text
+					default:
+						state.CurrentTextObject.Text += textMatch[1]
 					}
-
-					toUnicode, ok = font.FontDict.Find("ToUnicode")
-					if !ok {
-						goto AssignText
-					}
-
-					toUnicodeStream, valid, err = p.ctx.DereferenceStreamDict(toUnicode)
-					if err != nil {
-						goto AssignText
-					}
-
-					if !valid {
-						goto AssignText
-					}
-
-					err = toUnicodeStream.Decode()
-					if err != nil {
-						goto AssignText
-					}
-
-					encoder, err = NewToUnicodeDecoder(toUnicodeStream.Content)
-					if err != nil {
-						goto AssignText
-					}
-					text = encoder.Decode([]byte(text))
-
-				AssignText:
-					state.CurrentTextObject.Text += text
-				default:
-					state.CurrentTextObject.Text += textMatch[1]
 				}
 
 				textFound++
