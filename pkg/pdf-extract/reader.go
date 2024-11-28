@@ -12,9 +12,52 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 )
 
-type fontObjects map[string]*model.FontObject
+type fontObject struct {
+	*model.FontObject
 
-func (fo fontObjects) Get(resourceName string) (*model.FontObject, bool) {
+	decoder *ToUnicodeDecoder
+}
+
+func (font *fontObject) ToUnicode(ctx *model.Context) error {
+	toUnicode, ok := font.FontDict.Find("ToUnicode")
+	if !ok {
+		return nil
+	}
+
+	toUnicodeStream, valid, err := ctx.DereferenceStreamDict(toUnicode)
+	if err != nil {
+		return err
+	}
+
+	if !valid {
+		return nil
+	}
+
+	err = toUnicodeStream.Decode()
+	if err != nil {
+		return err
+	}
+
+	decoder, err := NewToUnicodeDecoder(toUnicodeStream.Content)
+	if err != nil {
+		return err
+	}
+
+	font.decoder = decoder
+
+	return nil
+}
+
+func (fo *fontObject) Decode(raw string) (text string) {
+	if fo.decoder != nil {
+		return fo.decoder.Decode([]byte(raw))
+	}
+	return raw
+}
+
+type fontObjects map[string]*fontObject
+
+func (fo fontObjects) Get(resourceName string) (*fontObject, bool) {
 	if strings.Contains(resourceName, "/") {
 		resourceName = strings.ReplaceAll(resourceName, "/", "")
 	}
@@ -66,7 +109,9 @@ func NewPDFReader(f []byte, filename string) (*PDFReader, error) {
 
 	fonts := make(fontObjects)
 	for _, font := range ctx.Optimize.FontObjects {
-		fonts[font.ResourceNamesString()] = font
+		fo := fontObject{FontObject: font}
+		fo.ToUnicode(ctx)
+		fonts[font.ResourceNamesString()] = &fo
 	}
 
 	return &PDFReader{

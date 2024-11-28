@@ -11,8 +11,6 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf16"
-
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 )
 
 var (
@@ -80,46 +78,13 @@ func (p *PDFReader) parse(r io.Reader) ([]TextObject, error) {
 						encoder := &byteEncoder{&macRomanEncoding}
 						state.CurrentTextObject.Text += encoder.Decode(textMatch[1])
 					case "Identity-H":
-						var (
-							toUnicode       types.Object
-							toUnicodeStream *types.StreamDict
-							encoder         *ToUnicodeDecoder
-							err             error
-							valid           bool
-							ok              bool
-
-							text = textMatch[1]
-						)
-
+						text := textMatch[1]
 						font, ok := p.fonts.Get(state.CurrentTextObject.ResourceName)
 						if !ok {
 							goto AssignText
 						}
 
-						toUnicode, ok = font.FontDict.Find("ToUnicode")
-						if !ok {
-							goto AssignText
-						}
-
-						toUnicodeStream, valid, err = p.ctx.DereferenceStreamDict(toUnicode)
-						if err != nil {
-							goto AssignText
-						}
-
-						if !valid {
-							goto AssignText
-						}
-
-						err = toUnicodeStream.Decode()
-						if err != nil {
-							goto AssignText
-						}
-
-						encoder, err = NewToUnicodeDecoder(toUnicodeStream.Content)
-						if err != nil {
-							goto AssignText
-						}
-						text = encoder.Decode([]byte(text))
+						text = font.Decode(text)
 
 					AssignText:
 						state.CurrentTextObject.Text += text
