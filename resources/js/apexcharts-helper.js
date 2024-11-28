@@ -1,3 +1,5 @@
+import ApexCharts from "apexcharts";
+
 /**
  * Builds a custom tooltip for a chart.
  *
