@@ -83,10 +83,6 @@ type PDFReader struct {
 }
 
 func NewPDFReader(f []byte, filename string) (*PDFReader, error) {
-	if path.Ext(filename) != ".pdf" {
-		return nil, fmt.Errorf("invalid file extension")
-	}
-
 	outdirpath := getPath(path.Join("reader", filename))
 	exist := directoryExists(outdirpath)
 	if !exist {

@@ -26,10 +26,6 @@ type Metadata struct {
 }
 
 func NewPDFMetadata(f []byte, filename string) (*PDFMetadata, error) {
-	if path.Ext(filename) != ".pdf" {
-		return nil, fmt.Errorf("invalid file extension")
-	}
-
 	outdirpath := getPath(path.Join("metadata", filename))
 	exist := directoryExists(outdirpath)
 	if !exist {
