@@ -6,379 +6,97 @@ Welcome -
 {%- endblock title %}
 
 {% block body -%}
-  <section class="p-4">
-    <nav class="navbar bg-base-100 rounded-box shadow">
-      <button type="button" class="btn btn-text btn-circle mr-4" aria-haspopup="dialog" aria-expanded="false" aria-controls="overlay-navigation-example" data-overlay="#overlay-navigation-example" >
-            <span class="icon-[tabler--menu-2] size-5"></span>
-      </button>
-      <div class="flex flex-1 items-center">
-        <a class="link text-base-content/90 link-neutral text-xl font-semibold no-underline" href="#">
-          {{ appConfig.NAME | upper }}
-        </a>
-      </div>
-      <div class="navbar-end flex items-center gap-4">
-        <div class="dropdown relative inline-flex [--auto-close:inside] rtl:[--placement:bottom-end]">
-          <button id="dropdown-default" type="button" class="dropdown-toggle btn btn-outline btn-primary" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown" >
-            Theme
-            <span class="icon-[tabler--chevron-down] dropdown-open:rotate-180 size-4"></span>
-          </button>
-          <ul class="dropdown-menu dropdown-open:opacity-100 hidden min-w-60" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-default" >
-            <li>
-              <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Default" value="default" checked />
-            </li>
-            <li>
-              <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Light" value="light" />
-            </li>
-            <li>
-              <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Dark" value="dark" />
-            </li>
-            <li>
-              <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Gourmet" value="gourmet" />
-            </li>
-            <li>
-              <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Corporate" value="corporate" />
-            </li>
-            <li>
-              <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Luxury" value="luxury" />
-            </li>
-            <li>
-              <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Soft" value="soft" />
-            </li>
-          </ul>
-        </div>
-        <div class="dropdown relative inline-flex [--auto-close:inside] [--offset:8] [--placement:bottom-end]">
-          <button id="dropdown-scrollable" type="button" class="dropdown-toggle btn btn-text btn-circle dropdown-open:bg-base-content/10 size-10" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown">
-            <div class="indicator">
-              <span class="indicator-item bg-error size-2 rounded-full"></span>
-              <span class="icon-[tabler--bell] text-base-content size-[1.375rem]"></span>
+
+  <!-- START NAVIGATION SECTION -->
+  <section>
+    {% include "partials/header.html" %}
+    {% include "partials/sidebar.html" %}
+  </section>
+  <!-- END NAVIGATION SECTION -->
+
+  <!-- START MAIN CONTENT SECTION -->
+  <main class="ml-72 pt-16">
+    <div class="flex gap-4">
+      <section class="p-4">
+        <div class="stats max-md:stats-vertical">
+          <div class="stat">
+            <div class="stat-title">Subscription Plan</div>
+            <div class="stat-value">Premium</div>
+            <div class="stat-actions">
+              <button class="btn btn-sm btn-primary">Upgrade Plan</button>
             </div>
-          </button>
-          <div class="dropdown-menu dropdown-open:opacity-100 hidden" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-scrollable">
-            <div class="dropdown-header justify-center">
-              <h6 class="text-base-content/90 text-base">Notifications</h6>
+          </div>
+
+          <div class="stat">
+            <div class="stat-title">Next Billing Date</div>
+            <div class="stat-value">Oct 15, 2024</div>
+            <div class="stat-actions flex flex-wrap gap-2">
+              <button class="btn btn-sm btn-soft">View Details</button>
+              <button class="btn btn-sm btn-warning btn-soft">Change Payment Method</button>
             </div>
-            <div class="vertical-scrollbar horizontal-scroll rounded-scrollbar text-base-content/80 max-h-56 overflow-auto max-sm:max-w-60">
-              <div class="dropdown-item">
-                <div class="avatar away-bottom">
-                  <div class="w-10 rounded-full">
-                    <img src="/assets/avatar/avatar-1.png" alt="avatar 1" />
-                  </div>
-                </div>
-                <div class="w-60">
-                  <h6 class="truncate text-base">Charles Franklin</h6>
-                  <small class="text-base-content/50 truncate">Accepted your connection</small>
-                </div>
-              </div>
-              <div class="dropdown-item">
-                <div class="avatar">
-                  <div class="w-10 rounded-full">
-                    <img src="/assets/avatar/avatar-2.png" alt="avatar 2" />
-                  </div>
-                </div>
-                <div class="w-60">
-                  <h6 class="truncate text-base">Martian added moved Charts & Maps task to the done board.</h6>
-                  <small class="text-base-content/50 truncate">Today 10:00 AM</small>
-                </div>
-              </div>
-              <div class="dropdown-item">
-                <div class="avatar online-bottom">
-                  <div class="w-10 rounded-full">
-                    <img src="/assets/avatar/avatar-8.png" alt="avatar 8" />
-                  </div>
-                </div>
-                <div class="w-60">
-                  <h6 class="truncate text-base">New Message</h6>
-                  <small class="text-base-content/50 truncate">You have new message from Natalie</small>
-                </div>
-              </div>
-              <div class="dropdown-item">
-                <div class="avatar placeholder">
-                  <div class="bg-neutral text-neutral-content w-10 rounded-full p-2">
-                    <span class="icon-[tabler--user] size-full"></span>
-                  </div>
-                </div>
-                <div class="w-60">
-                  <h6 class="truncate text-base">Application has been approved 🚀</h6>
-                  <small class="text-base-content/50 text-wrap">Your ABC project application has been approved.</small>
-                </div>
-              </div>
-              <div class="dropdown-item">
-                <div class="avatar">
-                  <div class="w-10 rounded-full">
-                    <img src="/assets/avatar/avatar-10.png" alt="avatar 10" />
-                  </div>
-                </div>
-                <div class="w-60">
-                  <h6 class="truncate text-base">New message from Jane</h6>
-                  <small class="text-base-content/50 text-wrap">Your have new message from Jane</small>
-                </div>
-              </div>
-              <div class="dropdown-item">
-                <div class="avatar">
-                  <div class="w-10 rounded-full">
-                    <img src="/assets/avatar/avatar-3.png" alt="avatar 3" />
-                  </div>
-                </div>
-                <div class="w-60">
-                  <h6 class="truncate text-base">Barry Commented on App review task.</h6>
-                  <small class="text-base-content/50 truncate">Today 8:32 AM</small>
-                </div>
-              </div>
-            </div>
-            <a href="#" class="dropdown-footer justify-center gap-1">
-              <span class="icon-[tabler--eye] size-4"></span>
-              View all
-            </a>
           </div>
         </div>
-        <div class="dropdown relative inline-flex [--auto-close:inside] [--offset:8] [--placement:bottom-end]">
-          <button id="dropdown-scrollable" type="button" class="dropdown-toggle flex items-center" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown">
-            <div class="avatar">
-              <div class="size-9.5 rounded-full">
-                <img src="/assets/avatar/avatar-1.png" alt="avatar 1" />
-              </div>
+      </section>
+      <section class="p-4">
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-figure text-base-content size-8">
+              <span class="icon-[tabler--world] size-8"></span>
             </div>
-          </button>
-          <ul class="dropdown-menu dropdown-open:opacity-100 hidden min-w-60" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-avatar">
-            <li class="dropdown-header gap-2">
+            <div class="stat-title">Website Traffic</div>
+            <div class="stat-value">32K</div>
+            <div class="stat-desc">5% ↗︎ than last week</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-figure text-base-content size-8">
+              <span class="icon-[tabler--users-group] size-8"></span>
+            </div>
+            <div class="stat-title">New Signups</div>
+            <div class="stat-value">1.2K</div>
+            <div class="stat-desc">12% increase this month</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-figure size-12">
               <div class="avatar">
-                <div class="w-10 rounded-full">
-                  <img src="/assets/avatar/avatar-1.png" alt="avatar" />
+                <div class="size-12 rounded-full">
+                  <img src="/assets/avatar/avatar-2.png" alt="User Avatar"/>
                 </div>
               </div>
-              <div>
-                <h6 class="text-base-content/90 text-base font-semibold">John Doe</h6>
-                <small class="text-base-content/50">Admin</small>
-              </div>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">
-                <span class="icon-[tabler--user]"></span>
-                My Profile
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">
-                <span class="icon-[tabler--settings]"></span>
-                Settings
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">
-                <span class="icon-[tabler--receipt-rupee]"></span>
-                Billing
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="#">
-                <span class="icon-[tabler--help-triangle]"></span>
-                FAQs
-              </a>
-            </li>
-            <li class="dropdown-footer gap-2">
-              <a class="btn btn-error btn-soft btn-block" href="#">
-                <span class="icon-[tabler--logout]"></span>
-                Sign out
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-    <div id="overlay-navigation-example" class="overlay overlay-open:translate-x-0 drawer drawer-start hidden max-w-72" tabindex="-1" style="inset-inline-end: calc(100vw - 18rem);" >
-      <div class="drawer-header">
-        <h3 class="drawer-title">Menu</h3>
-        <button type="button" class="btn btn-text btn-circle btn-sm absolute end-3 top-3" aria-label="Close" data-overlay="#overlay-navigation-example" >
-          <span class="icon-[tabler--x] size-4"></span>
-        </button>
-      </div>
-      <div class="drawer-body justify-start pb-6">
-        <ul class="space-y-0.5">
-          <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-            <span class="icon-[tabler--home] group-hover:text-base-content"></span>
-            <a href="#" class="group-hover:text-base-content">Dashboard</a>
-          </li>
-          <li class="collapse-toggle btn btn-text collapse-open:bg-base-content/10 text-base-content/80 collapse-open:text-base-content group w-full justify-start p-2" id="menu-item-1" data-collapse="#menu-sub-item-1" >
-            <span class="icon-[tabler--layout-navbar] group-hover:text-base-content"></span>
-            <span class="group-hover:text-base-content">Layouts</span>
-            <span class="icon-[tabler--chevron-right] collapse-open:rotate-90 group-hover:text-base-content ms-auto size-4 rtl:rotate-180" ></span>
-          </li>
-          <div id="menu-sub-item-1" class="collapse hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="menu-item-1" >
-            <ul>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Content Navbar</a>
-              </li>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Horizontal</a>
-              </li>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Without Menu</a>
-              </li>
-            </ul>
-          </div>
-          <li class="collapse-toggle btn btn-text collapse-open:bg-base-content/10 text-base-content/80 collapse-open:text-base-content group w-full justify-start p-2" id="menu-item-2" aria-expanded="false" aria-controls="menu-sub-item-2" data-collapse="#menu-sub-item-2" >
-            <span class="icon-[tabler--box-multiple] group-hover:text-base-content"></span>
-            <span class="group-hover:text-base-content">Front Pages</span>
-            <span class="icon-[tabler--chevron-right] collapse-open:rotate-90 group-hover:text-base-content ms-auto size-4 rtl:rotate-180" ></span>
-          </li>
-          <div id="menu-sub-item-2" class="collapse hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="menu-item-2" >
-            <ul>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Landing Page</a>
-              </li>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Pricing Page</a>
-              </li>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Checkout Page</a>
-              </li>
-            </ul>
-          </div>
-          <div class="divider text-base-content/50 py-6 after:border-0">Apps & Pages</div>
-          <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-            <span class="icon-[tabler--message-chatbot] group-hover:text-base-content"></span>
-            <a href="#" class="group-hover:text-base-content">Chat</a>
-          </li>
-          <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-            <span class="icon-[tabler--mail] group-hover:text-base-content"></span>
-            <a href="#" class="group-hover:text-base-content">Email</a>
-          </li>
-          <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-            <span class="icon-[tabler--calendar] group-hover:text-base-content"></span>
-            <a href="#" class="group-hover:text-base-content">Calendar</a>
-          </li>
-          <li class="collapse-toggle btn btn-text collapse-open:bg-base-content/10 text-base-content/80 collapse-open:text-base-content group w-full justify-start p-2" id="menu-item-3" aria-expanded="false" aria-controls="menu-sub-item-3" data-collapse="#menu-sub-item-3" >
-            <span class="icon-[tabler--shopping-cart] group-hover:text-base-content"></span>
-            <span class="group-hover:text-base-content">Ecommerce</span>
-            <span class="icon-[tabler--chevron-right] collapse-open:rotate-90 group-hover:text-base-content ms-auto size-4 rtl:rotate-180" ></span>
-          </li>
-          <div id="menu-sub-item-3" class="collapse hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="menu-item-3" >
-            <ul>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Products</a>
-              </li>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Categories</a>
-              </li>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Shipping & Delivery</a>
-              </li>
-              <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
-                <a href="#" class="group-hover:text-base-content">Location</a>
-              </li>
-            </ul>
-          </div>
-          <div class="divider text-base-content/50 py-6 after:border-0">Account</div>
-          <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-            <span class="icon-[tabler--login-2] group-hover:text-base-content"></span>
-            <a href="#" class="group-hover:text-base-content">Log In</a>
-          </li>
-          <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-            <span class="icon-[tabler--file-pencil] group-hover:text-base-content"></span>
-            <a href="#" class="group-hover:text-base-content">Sign Up</a>
-          </li>
-          <div class="divider text-base-content/50 py-6 after:border-0">Miscellaneous</div>
-          <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-            <span class="icon-[tabler--users-group] group-hover:text-base-content"></span>
-            <a href="#" class="group-hover:text-base-content">Support</a>
-          </li>
-          <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
-            <span class="icon-[tabler--files] group-hover:text-base-content"></span>
-            <a href="#" class="group-hover:text-base-content">Documentation</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </section>
-  <div class="flex gap-4">
-    <section class="p-4">
-      <div class="stats max-md:stats-vertical">
-        <div class="stat">
-          <div class="stat-title">Subscription Plan</div>
-          <div class="stat-value">Premium</div>
-          <div class="stat-actions">
-            <button class="btn btn-sm btn-primary">Upgrade Plan</button>
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-title">Next Billing Date</div>
-          <div class="stat-value">Oct 15, 2024</div>
-          <div class="stat-actions flex flex-wrap gap-2">
-            <button class="btn btn-sm btn-soft">View Details</button>
-            <button class="btn btn-sm btn-warning btn-soft">Change Payment Method</button>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="p-4">
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-figure text-base-content size-8">
-            <span class="icon-[tabler--world] size-8"></span>
-          </div>
-          <div class="stat-title">Website Traffic</div>
-          <div class="stat-value">32K</div>
-          <div class="stat-desc">5% ↗︎ than last week</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-figure text-base-content size-8">
-            <span class="icon-[tabler--users-group] size-8"></span>
-          </div>
-          <div class="stat-title">New Signups</div>
-          <div class="stat-value">1.2K</div>
-          <div class="stat-desc">12% increase this month</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-figure size-12">
-            <div class="avatar">
-              <div class="size-12 rounded-full">
-                <img src="/assets/avatar/avatar-2.png" alt="User Avatar"/>
-              </div>
             </div>
+            <div class="stat-value text-success">95%</div>
+            <div class="stat-title">Customer Retention</div>
+            <div class="stat-desc">Steady over last quarter</div>
           </div>
-          <div class="stat-value text-success">95%</div>
-          <div class="stat-title">Customer Retention</div>
-          <div class="stat-desc">Steady over last quarter</div>
+        </div>
+      </section>
+    </div>
+    <section class="grid grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+      <div class="card">
+        <div class="card-body pb-0">
+          <div id="apex-single-area-chart" class="w-full"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body pb-0">
+          <div id="lineAreaChart" class="w-full"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body pb-0">
+          <div id="apex-column-bar-chart" class="w-full"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body pb-0">
+          <div id="apex-doughnut-chart"></div>
         </div>
       </div>
     </section>
-  </div>
-  <section class="grid grid-cols-3 xl:grid-cols-4 gap-4 p-4">
-    <div class="card">
-      <div class="card-body pb-0">
-        <div id="apex-single-area-chart" class="w-full"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body pb-0">
-        <div id="lineAreaChart" class="w-full"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body pb-0">
-        <div id="apex-column-bar-chart" class="w-full"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body pb-0">
-        <div id="apex-doughnut-chart"></div>
-      </div>
-    </div>
-  </section>
+  </main>
+  <!-- END MAIN CONTENT SECTION -->
+
 
 
   <script>

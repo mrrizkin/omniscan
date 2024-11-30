@@ -1,6 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: ["./resources/**/*.{js,ts,jsx,tsx,html}", "./node_modules/flyonui/dist/js/*.js", "./node_modules/apexcharts/dist/*.js", "./resources/js/apexcharts-helper.js"],
+    content: [
+        "./resources/**/*.{js,ts,jsx,tsx,html}",
+        "./node_modules/flyonui/dist/js/*.js",
+        "./node_modules/apexcharts/dist/*.js",
+        "./resources/js/apexcharts-helper.js",
+        "./app/providers/app/menu.go",
+    ],
     theme: {
         extend: {},
     },

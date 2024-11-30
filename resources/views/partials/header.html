@@ -1,0 +1,184 @@
+<header class="fixed w-full top-0 left-0 z-[100]">
+  <nav class="navbar bg-base-100 shadow">
+    <button type="button" class="btn btn-text btn-circle mr-4" aria-haspopup="dialog" aria-expanded="false" aria-controls="overlay-navigation-example" data-overlay="#overlay-navigation-example" >
+          <span class="icon-[tabler--menu-2] size-5"></span>
+    </button>
+    <div class="flex flex-1 items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="mr-2">
+        <path fill="currentColor" fill-rule="evenodd" d="M3.464 3.464C2 4.93 2 7.286 2 12s0 7.071 1.464 8.535C4.93 22 7.286 22 12 22s7.071 0 8.535-1.465C22 19.072 22 16.714 22 12s0-7.071-1.465-8.536C19.072 2 16.714 2 12 2S4.929 2 3.464 3.464m3.893 9.15a.75.75 0 0 0 1.283.776l.004-.005l.027-.04q.042-.062.136-.177c.128-.153.326-.363.6-.573c.543-.418 1.386-.845 2.593-.845s2.05.427 2.593.845c.274.21.472.42.6.573a3 3 0 0 1 .163.217l.004.005a.75.75 0 0 0 1.283-.776L16 13l.643-.386v-.001l-.002-.002l-.002-.004l-.006-.01a2 2 0 0 0-.076-.113a4 4 0 0 0-.212-.277a5.3 5.3 0 0 0-.838-.802c-.758-.582-1.914-1.155-3.507-1.155s-2.75.573-3.507 1.156c-.376.289-.653.58-.838.801a4 4 0 0 0-.288.39l-.006.01l-.002.004l-.001.002s-.001.001.642.387zM19 13.25a.75.75 0 0 1 .75.75v.054c0 1.133 0 2.058-.098 2.79c-.103.763-.325 1.425-.854 1.954s-1.19.751-1.955.854c-.73.098-1.656.098-2.79.098H14a.75.75 0 0 1 0-1.5c1.2 0 2.024-.002 2.643-.085c.598-.08.89-.224 1.094-.428s.348-.496.428-1.094c.083-.619.085-1.443.085-2.643a.75.75 0 0 1 .75-.75M5.75 14a.75.75 0 0 0-1.5 0v.054c0 1.133 0 2.058.098 2.79c.103.763.325 1.425.854 1.954s1.19.751 1.955.854c.73.098 1.656.098 2.79.098H10a.75.75 0 0 0 0-1.5c-1.2 0-2.024-.002-2.643-.085c-.598-.08-.89-.224-1.094-.428s-.348-.496-.428-1.094C5.752 16.024 5.75 15.2 5.75 14m4.196-9.75H10a.75.75 0 0 1 0 1.5c-1.2 0-2.024.002-2.643.085c-.598.08-.89.224-1.094.428s-.348.496-.428 1.094C5.752 7.976 5.75 8.8 5.75 10a.75.75 0 0 1-1.5 0v-.054c0-1.133 0-2.058.098-2.79c.103-.763.325-1.425.854-1.954s1.19-.751 1.955-.854c.73-.098 1.656-.098 2.79-.098M14 5.75c1.2 0 2.024.002 2.643.085c.598.08.89.224 1.094.428s.348.496.428 1.094c.083.619.085 1.443.085 2.643a.75.75 0 0 0 1.5 0v-.054c0-1.133 0-2.058-.098-2.79c-.103-.763-.325-1.425-.854-1.954s-1.19-.751-1.955-.854c-.73-.098-1.656-.098-2.79-.098H14a.75.75 0 0 0 0 1.5" clip-rule="evenodd"/>
+      </svg>
+      <a class="link text-base-content/90 link-neutral text-xl font-semibold no-underline" href="#">
+        {{ appConfig.NAME | capitalize }}
+      </a>
+    </div>
+    <div class="navbar-end flex items-center gap-4">
+      <div class="dropdown relative inline-flex [--auto-close:inside] rtl:[--placement:bottom-end]">
+        <button id="dropdown-default" type="button" class="dropdown-toggle btn btn-outline btn-primary" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown" >
+          Theme
+          <span class="icon-[tabler--chevron-down] dropdown-open:rotate-180 size-4"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-open:opacity-100 hidden min-w-60" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-default" >
+          <li>
+            <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Default" value="default" checked />
+          </li>
+          <li>
+            <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Light" value="light" />
+          </li>
+          <li>
+            <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Dark" value="dark" />
+          </li>
+          <li>
+            <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Gourmet" value="gourmet" />
+          </li>
+          <li>
+            <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Corporate" value="corporate" />
+          </li>
+          <li>
+            <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Luxury" value="luxury" />
+          </li>
+          <li>
+            <input type="radio" name="theme-dropdown" class="theme-controller btn btn-text w-full justify-start" aria-label="Soft" value="soft" />
+          </li>
+        </ul>
+      </div>
+      <div class="dropdown relative inline-flex [--auto-close:inside] [--offset:8] [--placement:bottom-end]">
+        <button id="dropdown-scrollable" type="button" class="dropdown-toggle btn btn-text btn-circle dropdown-open:bg-base-content/10 size-10" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown">
+          <div class="indicator">
+            <span class="indicator-item bg-error size-2 rounded-full"></span>
+            <span class="icon-[tabler--bell] text-base-content size-[1.375rem]"></span>
+          </div>
+        </button>
+        <div class="dropdown-menu dropdown-open:opacity-100 hidden" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-scrollable">
+          <div class="dropdown-header justify-center">
+            <h6 class="text-base-content/90 text-base">Notifications</h6>
+          </div>
+          <div class="vertical-scrollbar horizontal-scroll rounded-scrollbar text-base-content/80 max-h-56 overflow-auto max-sm:max-w-60">
+            <div class="dropdown-item">
+              <div class="avatar away-bottom">
+                <div class="w-10 rounded-full">
+                  <img src="/assets/avatar/avatar-1.png" alt="avatar 1" />
+                </div>
+              </div>
+              <div class="w-60">
+                <h6 class="truncate text-base">Charles Franklin</h6>
+                <small class="text-base-content/50 truncate">Accepted your connection</small>
+              </div>
+            </div>
+            <div class="dropdown-item">
+              <div class="avatar">
+                <div class="w-10 rounded-full">
+                  <img src="/assets/avatar/avatar-2.png" alt="avatar 2" />
+                </div>
+              </div>
+              <div class="w-60">
+                <h6 class="truncate text-base">Martian added moved Charts & Maps task to the done board.</h6>
+                <small class="text-base-content/50 truncate">Today 10:00 AM</small>
+              </div>
+            </div>
+            <div class="dropdown-item">
+              <div class="avatar online-bottom">
+                <div class="w-10 rounded-full">
+                  <img src="/assets/avatar/avatar-8.png" alt="avatar 8" />
+                </div>
+              </div>
+              <div class="w-60">
+                <h6 class="truncate text-base">New Message</h6>
+                <small class="text-base-content/50 truncate">You have new message from Natalie</small>
+              </div>
+            </div>
+            <div class="dropdown-item">
+              <div class="avatar placeholder">
+                <div class="bg-neutral text-neutral-content w-10 rounded-full p-2">
+                  <span class="icon-[tabler--user] size-full"></span>
+                </div>
+              </div>
+              <div class="w-60">
+                <h6 class="truncate text-base">Application has been approved 🚀</h6>
+                <small class="text-base-content/50 text-wrap">Your ABC project application has been approved.</small>
+              </div>
+            </div>
+            <div class="dropdown-item">
+              <div class="avatar">
+                <div class="w-10 rounded-full">
+                  <img src="/assets/avatar/avatar-10.png" alt="avatar 10" />
+                </div>
+              </div>
+              <div class="w-60">
+                <h6 class="truncate text-base">New message from Jane</h6>
+                <small class="text-base-content/50 text-wrap">Your have new message from Jane</small>
+              </div>
+            </div>
+            <div class="dropdown-item">
+              <div class="avatar">
+                <div class="w-10 rounded-full">
+                  <img src="/assets/avatar/avatar-3.png" alt="avatar 3" />
+                </div>
+              </div>
+              <div class="w-60">
+                <h6 class="truncate text-base">Barry Commented on App review task.</h6>
+                <small class="text-base-content/50 truncate">Today 8:32 AM</small>
+              </div>
+            </div>
+          </div>
+          <a href="#" class="dropdown-footer justify-center gap-1">
+            <span class="icon-[tabler--eye] size-4"></span>
+            View all
+          </a>
+        </div>
+      </div>
+      <div class="dropdown relative inline-flex [--auto-close:inside] [--offset:8] [--placement:bottom-end]">
+        <button id="dropdown-scrollable" type="button" class="dropdown-toggle flex items-center" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown">
+          <div class="avatar">
+            <div class="size-9.5 rounded-full">
+              <img src="/assets/avatar/avatar-1.png" alt="avatar 1" />
+            </div>
+          </div>
+        </button>
+        <ul class="dropdown-menu dropdown-open:opacity-100 hidden min-w-60" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-avatar">
+          <li class="dropdown-header gap-2">
+            <div class="avatar">
+              <div class="w-10 rounded-full">
+                <img src="/assets/avatar/avatar-1.png" alt="avatar" />
+              </div>
+            </div>
+            <div>
+              <h6 class="text-base-content/90 text-base font-semibold">John Doe</h6>
+              <small class="text-base-content/50">Admin</small>
+            </div>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">
+              <span class="icon-[tabler--user]"></span>
+              My Profile
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">
+              <span class="icon-[tabler--settings]"></span>
+              Settings
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">
+              <span class="icon-[tabler--receipt-rupee]"></span>
+              Billing
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">
+              <span class="icon-[tabler--help-triangle]"></span>
+              FAQs
+            </a>
+          </li>
+          <li class="dropdown-footer gap-2">
+            <a class="btn btn-error btn-soft btn-block" href="#">
+              <span class="icon-[tabler--logout]"></span>
+              Sign out
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+</header>

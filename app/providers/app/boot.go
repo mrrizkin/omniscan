@@ -16,6 +16,7 @@ func Boot(
 ) {
 	view.AddContext(exec.NewContext(map[string]interface{}{
 		"appConfig": appCfg,
+		"menu":      menu,
 	}))
 
 	view.AddControlStructure(exec.NewControlStructureSet(map[string]parser.ControlStructureParser{

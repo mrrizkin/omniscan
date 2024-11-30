@@ -1,0 +1,54 @@
+{% macro menuhtml(name) -%}
+  <ul class="space-y-0.5">
+    {% for item in menu %}
+      {% if item.IsSeparator  %}
+        <div class="divider text-base-content/50 py-6 after:border-0">{{ item.Title }}</div>
+      {% elif item.HasSubmenu %}
+  <li class="collapse-toggle btn btn-text collapse-open:bg-base-content/10 text-base-content/80 collapse-open:text-base-content group w-full justify-start p-2" id="menu-item-{{ name }}-{{ item.SubMenuId }}" data-collapse="#menu-sub-item-{{ name }}-{{ item.SubMenuId }}" >
+          <span class="{{ item.Icon }} group-hover:text-base-content"></span>
+          <span class="group-hover:text-base-content">{{ item.Title }}</span>
+          <span class="icon-[tabler--chevron-right] collapse-open:rotate-90 group-hover:text-base-content ms-auto size-4 rtl:rotate-180" ></span>
+        </li>
+        <div id="menu-sub-item-{{ name }}-{{ item.SubMenuId }}" class="collapse hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="menu-item-{{ name }}-{{ item.SubMenuId }}" >
+          <ul>
+            {% for subitem in item.SubMenu %}
+            <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
+              <a href="{{ subitem.Link }}" class="w-full justify-start inline-flex gap-2 items-center">
+                <span class="icon-[tabler--point] group-hover:text-base-content"></span>
+                <span class="group-hover:text-base-content">{{ subitem.Title }}</span>
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <li class="btn btn-text text-base-content/80 group w-full justify-start p-2">
+          <a href="{{ item.Link }}" class="w-full justify-start inline-flex gap-2 items-center">
+            <span class="{{ item.Icon }} group-hover:text-base-content"></span>
+            <span class="group-hover:text-base-content">{{ item.Title }}</span>
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{%- endmacro %}
+
+<aside>
+  <div class="fixed top-16 left-0 w-full max-w-72 bg-base-100 overflow-auto vertical-scrollbar shadow" style="inset-inline-end: calc(100vw - 18rem); height: calc(100vh - 64px);">
+    <nav class="p-5 h-full">
+      {{ menuhtml("fixed") }}
+    </nav>
+  </div>
+
+  <div id="overlay-navigation-example" class="overlay overlay-open:translate-x-0 drawer drawer-start hidden max-w-72" tabindex="-1" style="inset-inline-end: calc(100vw - 18rem);" >
+    <div class="drawer-header">
+      <h3 class="drawer-title">Menu</h3>
+      <button type="button" class="btn btn-text btn-circle btn-sm absolute end-3 top-3" aria-label="Close" data-overlay="#overlay-navigation-example" >
+        <span class="icon-[tabler--x] size-4"></span>
+      </button>
+    </div>
+    <div class="drawer-body justify-start pb-6">
+      {{ menuhtml("drawer") }}
+    </div>
+  </div>
+</aside>
