@@ -22,9 +22,9 @@ type ScanEStatementPayload struct {
 type ScanEStatementResponse struct {
 	*types.ScanResult
 
-	EStatementID uint                `json:"e_statement_id"`
-	Meta         pdfextract.Metadata `json:"meta"`
-	Summary      OverallSummary      `json:"summary"`
+	EStatementID uint                 `json:"e_statement_id"`
+	Meta         *pdfextract.Metadata `json:"meta"`
+	Summary      OverallSummary       `json:"summary"`
 }
 
 type Summary struct {

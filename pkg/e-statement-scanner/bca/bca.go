@@ -12,11 +12,10 @@ func New() *BCA {
 }
 
 func (bca *BCA) ProcessFromBytes(filename string, b []byte) (*types.ScanResult, error) {
-	pdfReader, err := pdfextract.NewPDFReader(b, filename)
+	pdfReader, err := pdfextract.NewReader(b)
 	if err != nil {
 		return nil, err
 	}
-	defer pdfReader.Close()
 	trx, header, err := processPdf(pdfReader)
 	if err != nil {
 		return nil, err

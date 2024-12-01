@@ -13,7 +13,6 @@ func (p *Page) GetTextByRow(tolerance float64) (Rows, error) {
 	currentPosition := 0.0
 	rowIndex := -1
 	for _, object := range p.content {
-		// if object.Position.Y != currentPosition {
 		if !isEqualTolerance(object.Position.Y, currentPosition, tolerance) {
 			row = append(row, Row{
 				Content: []Text{{

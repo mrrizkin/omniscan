@@ -46,7 +46,7 @@ func (s *EStatementService) createEStatementDetailModels(
 func (s *EStatementService) createScanEStatementResponse(
 	eStatementID uint,
 	scanResult *types.ScanResult,
-	metadata pdfextract.Metadata,
+	metadata *pdfextract.Metadata,
 	summary *OverallSummary,
 ) *ScanEStatementResponse {
 	return &ScanEStatementResponse{

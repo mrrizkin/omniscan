@@ -26,7 +26,7 @@ var months = []string{
 
 // this is the internal function called by the exported
 // ProcessPdf*** functions
-func processPdf(pdfR *pdfextract.PDFReader) (Transactions, Header, error) {
+func processPdf(pdfR *pdfextract.Reader) (Transactions, Header, error) {
 	totalPage := pdfR.NumPage()
 	transactions := make([]*Transaction, 0)
 	var currentTransaction *Transaction = nil

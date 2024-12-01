@@ -63,20 +63,11 @@ func (s *EStatementService) ScanEStatement(
 		return nil, err
 	}
 
-	pdfMetadata, err := pdfextract.NewPDFMetadata(file, fileHeader.Filename)
+	metadata, err := pdfextract.NewMetadata(file, fileHeader.Filename)
 	if err != nil {
 		s.log.Error("failed to create pdf metadata", "err", err)
 		return nil, err
 	}
-	defer pdfMetadata.Close()
-
-	err = pdfMetadata.ParseXMLMetadata()
-	if err != nil {
-		s.log.Error("failed to parse pdf metadata", "err", err)
-		return nil, err
-	}
-
-	metadata := pdfMetadata.Metadata()
 
 	summaryField := make([]string, 0)
 	if payload.Summary != "" {
@@ -99,7 +90,7 @@ func (s *EStatementService) GetSummary(eStatementID uint) (*OverallSummary, erro
 
 func (s *EStatementService) getExistingEStatementResponse(
 	fileHeader *multipart.FileHeader,
-	metadata pdfextract.Metadata,
+	metadata *pdfextract.Metadata,
 	summaryField []string,
 ) (*ScanEStatementResponse, error) {
 	eStatement, err := s.repo.GetEStatementByFilename(fileHeader.Filename)
@@ -138,7 +129,7 @@ func (s *EStatementService) processNewEStatement(
 	payload *ScanEStatementPayload,
 	fileHeader *multipart.FileHeader,
 	file []byte,
-	metadata pdfextract.Metadata,
+	metadata *pdfextract.Metadata,
 	summaryField []string,
 ) (*ScanEStatementResponse, error) {
 	scanResult, err := s.scanner.Scan(payload.Provider, fileHeader.Filename, file)

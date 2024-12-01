@@ -4,20 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path"
-	"strings"
+	"io"
 
 	xj "github.com/basgys/goxml2json"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 )
-
-type PDFMetadata struct {
-	outdirpath string
-	filename   string
-	metadata   Metadata
-}
 
 type Metadata struct {
 	*pdfcpu.PDFInfo
@@ -25,20 +18,28 @@ type Metadata struct {
 	XMLMetadata []map[string]interface{} `json:"xmlmetadata"`
 }
 
-func NewPDFMetadata(f []byte, filename string) (*PDFMetadata, error) {
-	outdirpath := getPath(path.Join("metadata", filename))
-	exist := directoryExists(outdirpath)
-	if !exist {
-		err := os.MkdirAll(outdirpath, os.ModePerm)
+func NewMetadata(f []byte, filename string) (*Metadata, error) {
+	reader := bytes.NewReader(f)
+	conf := model.NewDefaultConfiguration()
+	conf.Cmd = model.EXTRACTMETADATA
+	ctx, err := api.ReadValidateAndOptimize(reader, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	mm, err := pdfcpu.ExtractMetadata(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	xmlMetadata := make([]map[string]interface{}, len(mm))
+	for i, m := range mm {
+		fname := fmt.Sprintf("%s_Metadata_%s_%d_%d.txt", filename, m.ParentType, m.ParentObjNr, m.ObjNr)
+		metadata, err := parseXMLMetadata(m, fname)
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	reader := bytes.NewReader(f)
-	err := api.ExtractMetadata(reader, outdirpath, filename, nil)
-	if err != nil {
-		return nil, err
+		xmlMetadata[i] = metadata
 	}
 
 	pdfInfo, err := api.PDFInfo(reader, filename, nil, nil)
@@ -46,68 +47,16 @@ func NewPDFMetadata(f []byte, filename string) (*PDFMetadata, error) {
 		return nil, err
 	}
 
-	return &PDFMetadata{
-		filename:   strings.TrimSuffix(filename, ".pdf"),
-		outdirpath: outdirpath,
-		metadata: Metadata{
-			PDFInfo:     pdfInfo,
-			XMLMetadata: make([]map[string]interface{}, 0),
-		},
+	return &Metadata{
+		PDFInfo:     pdfInfo,
+		XMLMetadata: xmlMetadata,
 	}, nil
 }
 
-func (p *PDFMetadata) ParseXMLMetadata() error {
-	files, err := os.ReadDir(p.outdirpath)
-	if err != nil {
-		return err
-	}
-
-	for _, file := range files {
-		if file.IsDir() {
-			fmt.Printf("skipping directory: %s\n", file.Name())
-			continue
-		}
-
-		metadata, err := p.parseXMLMetadata(file.Name())
-		if err != nil {
-			return err
-		}
-
-		p.metadata.XMLMetadata = append(p.metadata.XMLMetadata, metadata)
-	}
-
-	return nil
-}
-
-func (p *PDFMetadata) Metadata() Metadata {
-	return p.metadata
-}
-
-func (p *PDFMetadata) Close() error {
-	err := os.RemoveAll(p.outdirpath)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p *PDFMetadata) parseXMLMetadata(filename string) (map[string]interface{}, error) {
-	// Construct full file path
-	fullPath := path.Join(p.outdirpath, filename)
-
-	// Read the entire file content
-	xmlContent, err := os.ReadFile(fullPath)
-	if err != nil {
-		// Log the error but continue (return empty map)
-		return nil, err
-	}
-
+func parseXMLMetadata(r io.Reader, filename string) (map[string]interface{}, error) {
 	// Create a generic map to store metadata
 	metadata := make(map[string]interface{})
-
-	reader := bytes.NewReader(xmlContent)
-	jsonByte, err := xj.Convert(reader)
+	jsonByte, err := xj.Convert(r)
 	if err != nil {
 		return nil, err
 	}
