@@ -1,0 +1,25 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title -%}
+E-Statement -
+{{ super() }}
+{%- endblock title %}
+
+{% block module -%}
+{%- endblock module %}
+
+{% block content -%}
+<div class="p-4">
+    <div class="card min-h-60 w-full">
+        <div class="card-header flex justify-between items-center">
+            <h1 class="card-title">E-Statement Scanner</h1>
+        </div>
+        <div class="card-body">
+            <div class="border-base-300 border-dashed border-2 h-60 flex flex-col items-center justify-center">
+                <span class="icon-[tabler--upload] mb-2 size-8"></span>
+                <p>Drag and drop your E-Statement here</p>
+            </div>
+        </div>
+    </div>
+</div>
+{%- endblock content %}

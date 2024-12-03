@@ -1,0 +1,27 @@
+{% extends "layouts/base.html" %}
+
+{% block head -%}
+{% vite "resources/js/app.js" %}
+{% block style %}{% endblock style %}
+{% block module %}{% endblock module %}
+{%- endblock head %}
+
+{% block body -%}
+
+<!-- START NAVIGATION SECTION -->
+<section>
+    {% include "partials/header.html" %}
+    {% include "partials/sidebar.html" %}
+</section>
+<!-- END NAVIGATION SECTION -->
+
+<!-- START MAIN CONTENT SECTION -->
+<main class="ml-72 pt-16">
+    {% block content -%}
+    {%- endblock content %}
+</main>
+<!-- END MAIN CONTENT SECTION -->
+
+{% block scripts %}{% endblock scripts %}
+
+{%- endblock body %}

@@ -7,7 +7,7 @@ import ApexCharts from "apexcharts";
  * @param {Object} options - Customization options for the tooltip.
  * @returns {string} - The HTML string for the custom tooltip.
  */
-function buildTooltip(props, options) {
+export function buildTooltip(props, options) {
     // Destructuring options with default values
     const {
         title,
@@ -80,7 +80,7 @@ function buildTooltip(props, options) {
  * @param {Object} options - Customization options for the tooltip.
  * @returns {string} - The HTML string for the custom tooltip.
  */
-function buildTooltipCompareTwo(props, options) {
+export function buildTooltipCompareTwo(props, options) {
     const { dataPointIndex } = props;
     const { categories } = props.ctx.opts.xaxis;
     const { colors } = props.ctx.opts;
@@ -164,7 +164,7 @@ function buildTooltipCompareTwo(props, options) {
  * @param {Object} options - Customization options for the tooltip.
  * @returns {string} - The HTML string for the custom tooltip.
  */
-function buildTooltipCompareTwoAlt(props, options) {
+export function buildTooltipCompareTwoAlt(props, options) {
     const { dataPointIndex } = props;
     const { categories } = props.ctx.opts.xaxis;
     const { colors } = props.ctx.opts;
@@ -244,7 +244,7 @@ function buildTooltipCompareTwoAlt(props, options) {
  * @param {Array} textColor - Array of text colors for each series.
  * @returns {string} - The HTML string for the custom tooltip.
  */
-function buildTooltipForDonut({ series, seriesIndex, w }, textColor) {
+export function buildTooltipForDonut({ series, seriesIndex, w }, textColor) {
     const { globals } = w;
     const { colors } = globals;
 
@@ -262,12 +262,12 @@ function buildTooltipForDonut({ series, seriesIndex, w }, textColor) {
 /**
  * Initializes and builds an ApexChart with the given configurations.
  *
- * @param {string} id - The DOM element ID where the chart will be rendered.
+ * @param {string} selector - The DOM element ID where the chart will be rendered.
  * @param {function} shared - Shared configuration function.
  * @returns {Object|null} - The initialized chart instance or null.
  */
-function buildChart(id, shared) {
-    const $chart = document.querySelector(id);
+export function buildChart(selector, shared) {
+    const $chart = document.querySelector(selector);
     let chart = null;
 
     if (!$chart) return false;
@@ -281,7 +281,3 @@ function buildChart(id, shared) {
 
     return chart;
 }
-
-window.buildChart = buildChart;
-window.buildTooltip = buildTooltip;
-window.buildTooltipForDonut = buildTooltipForDonut;

@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mrrizkin/omniscan/app/controllers"
+	"github.com/mrrizkin/omniscan/app/controllers/api"
 	"github.com/mrrizkin/omniscan/app/providers/app"
 )
 
@@ -10,7 +11,8 @@ func ApiRoutes(
 	app *app.App,
 
 	userController *controllers.UserController,
-	eStatementController *controllers.EStatementController,
+
+	eStatementController *api.EStatementController,
 ) {
 	api := app.ApiRoutes()
 	api.Get("/health", func(c *fiber.Ctx) error {
@@ -30,4 +32,8 @@ func ApiRoutes(
 	v1.Post("/user", userController.UserCreate)
 	v1.Put("/user/:id", userController.UserUpdate)
 	v1.Delete("/user/:id", userController.UserDelete)
+
+	api.All("*", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusNotFound)
+	})
 }

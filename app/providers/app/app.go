@@ -37,9 +37,6 @@ import (
 // @license.url				    https://opensource.org/licenses/MIT
 // @host						localhost:3000
 // @BasePath					/api/v1
-// @securityDefinitions.apikey	ApiKeyAuth
-// @in							header
-// @name						omniscan-api-token
 // @externalDocs.description	OpenAPI Specification
 // @externalDocs.url			https://swagger.io/specification/
 type App struct {

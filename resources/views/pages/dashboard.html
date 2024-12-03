@@ -1,0 +1,91 @@
+{% extends "layouts/dashboard.html" %}
+
+{% block title -%}
+Dashboard -
+{{ super() }}
+{%- endblock title %}
+
+{% block module -%}
+{% vite "resources/js/pages/dashboard/index.js" %}
+{%- endblock module %}
+
+{% block content -%}
+<div class="flex gap-4">
+    <section class="p-4">
+        <div class="stats max-md:stats-vertical">
+            <div class="stat">
+                <div class="stat-title">Subscription Plan</div>
+                <div class="stat-value">Premium</div>
+                <div class="stat-actions">
+                    <button class="btn btn-sm btn-primary">Upgrade Plan</button>
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-title">Next Billing Date</div>
+                <div class="stat-value">Oct 15, 2024</div>
+                <div class="stat-actions flex flex-wrap gap-2">
+                    <button class="btn btn-sm btn-soft">View Details</button>
+                    <button class="btn btn-sm btn-warning btn-soft">Change Payment Method</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="p-4">
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-figure text-base-content size-8">
+                    <span class="icon-[tabler--world] size-8"></span>
+                </div>
+                <div class="stat-title">Website Traffic</div>
+                <div class="stat-value">32K</div>
+                <div class="stat-desc">5% ↗︎ than last week</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-figure text-base-content size-8">
+                    <span class="icon-[tabler--users-group] size-8"></span>
+                </div>
+                <div class="stat-title">New Signups</div>
+                <div class="stat-value">1.2K</div>
+                <div class="stat-desc">12% increase this month</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-figure size-12">
+                    <div class="avatar">
+                        <div class="size-12 rounded-full">
+                            <img src="/assets/avatar/avatar-2.png" alt="User Avatar" />
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-value text-success">95%</div>
+                <div class="stat-title">Customer Retention</div>
+                <div class="stat-desc">Steady over last quarter</div>
+            </div>
+        </div>
+    </section>
+</div>
+<section class="grid grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+    <div class="card">
+        <div class="card-body pb-0">
+            <div id="apex-single-area-chart" class="w-full"></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body pb-0">
+            <div id="lineAreaChart" class="w-full"></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body pb-0">
+            <div id="apex-column-bar-chart" class="w-full"></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body pb-0">
+            <div id="apex-doughnut-chart"></div>
+        </div>
+    </div>
+</section>
+{%- endblock content %}

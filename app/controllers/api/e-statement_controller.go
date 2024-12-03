@@ -1,9 +1,8 @@
-package controllers
+package api
 
 import (
 	"fmt"
 	"math"
-	"os"
 
 	"github.com/gofiber/fiber/v2"
 	gonanoid "github.com/matoous/go-nanoid"
@@ -52,7 +51,7 @@ func (*EStatementController) Construct() interface{} {
 //	@Param			per_page	query		int																false	"Number of items per page"
 //	@Success		200			{object}	types.Response{data=[]models.EStatement,meta=types.PaginationMeta}	"Successfully retrieved e-statements"
 //	@Failure		500			{object}	validator.GlobalErrorResponse									"Internal server error"
-//	@Router			/e-statements [get]
+//	@Router			/e-statement [get]
 func (c *EStatementController) EStatementFindAll(ctx *fiber.Ctx) error {
 	page := ctx.QueryInt("page", 1)
 	perPage := ctx.QueryInt("per_page", 10)
@@ -91,7 +90,7 @@ func (c *EStatementController) EStatementFindAll(ctx *fiber.Ctx) error {
 //	@Success		200		{object}	types.Response{data=estatement.ScanEStatementResponse}	"Successfully scanned e-statement"
 //	@Failure		400		{object}	validator.GlobalErrorResponse		"Bad request"
 //	@Failure		500		{object}	validator.GlobalErrorResponse		"Internal server error"
-//	@Router			/e-statements/scan [post]
+//	@Router			/e-statement/scan [post]
 func (c *EStatementController) EStatementScan(ctx *fiber.Ctx) error {
 	var payload estatement.ScanEStatementPayload
 
@@ -116,8 +115,6 @@ func (c *EStatementController) EStatementScan(ctx *fiber.Ctx) error {
 		}
 	}
 
-	filePath := "storage/" + randomStr(10) + filePayload.Filename
-	err = ctx.SaveFile(filePayload, filePath)
 	if err != nil {
 		return &fiber.Error{
 			Code:    500,
@@ -125,14 +122,7 @@ func (c *EStatementController) EStatementScan(ctx *fiber.Ctx) error {
 		}
 	}
 
-	defer func() {
-		err := os.Remove(filePath)
-		if err != nil {
-			c.log.Error(fmt.Sprintf("failed to remove the uploaded file: %s", filePath), "err", err)
-		}
-	}()
-
-	scanResult, err := c.eStatementService.ScanEStatement(&payload, filePayload, filePath)
+	scanResult, err := c.eStatementService.ScanEStatement(&payload, filePayload)
 	if err != nil {
 		c.log.Error("failed to scan e-statement", "err", err)
 		return &fiber.Error{
@@ -160,7 +150,7 @@ func (c *EStatementController) EStatementScan(ctx *fiber.Ctx) error {
 //	@Success		200	{object}	types.Response{data=estatement.OverallSummary}	"Successfully retrieved e-statement summary"
 //	@Failure		400	{object}	validator.GlobalErrorResponse		"Bad request"
 //	@Failure		500	{object}	validator.GlobalErrorResponse		"Internal server error"
-//	@Router			/e-statements/{id}/summary [get]
+//	@Router			/e-statement/{id}/summary [get]
 func (c *EStatementController) EStatementGetSumary(ctx *fiber.Ctx) error {
 	eStatementID, err := ctx.ParamsInt("id")
 	if err != nil {

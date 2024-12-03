@@ -138,7 +138,7 @@ var menu = []Menu{
 	},
 	{
 		Title:       "API Documentation",
-		Link:        "/book/api-documentation",
+		Link:        "/api/v1/docs/swagger",
 		Icon:        "icon-[tabler--files]",
 		HasSubmenu:  false,
 		IsSeparator: false,

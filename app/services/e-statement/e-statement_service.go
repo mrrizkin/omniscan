@@ -51,7 +51,6 @@ func (s *EStatementService) FindAll(page, perPage int) (*PaginatedEStatement, er
 func (s *EStatementService) ScanEStatement(
 	payload *ScanEStatementPayload,
 	fileHeader *multipart.FileHeader,
-	filePath string,
 ) (*ScanEStatementResponse, error) {
 	if fileHeader == nil {
 		return nil, errors.New("file can't be nil")
