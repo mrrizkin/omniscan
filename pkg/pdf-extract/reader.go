@@ -28,9 +28,21 @@ func NewReader(f []byte) (*Reader, error) {
 
 	fonts := make(fontObjects)
 	for _, font := range ctx.Optimize.FontObjects {
-		fo := fontObject{FontObject: font}
-		fo.ToUnicode(ctx)
-		fonts[font.ResourceNamesString()] = &fo
+		for _, resName := range font.ResourceNames {
+			fo, ok := fonts[resName]
+			if !ok {
+				fo = &fontObject{FontObject: font}
+			} else {
+				fo.FontObject.FontDict = font.FontDict
+			}
+
+			err := fo.GetCharacterMap(ctx)
+			if err != nil {
+				return nil, err
+			}
+
+			fonts[resName] = fo
+		}
 	}
 
 	return &Reader{

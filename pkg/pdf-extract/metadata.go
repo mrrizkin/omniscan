@@ -18,7 +18,7 @@ type Metadata struct {
 	XMLMetadata []map[string]interface{} `json:"xmlmetadata"`
 }
 
-func NewMetadata(f []byte, filename string) (*Metadata, error) {
+func ExtractMetadata(f []byte, filename string) (*Metadata, error) {
 	reader := bytes.NewReader(f)
 	conf := model.NewDefaultConfiguration()
 	conf.Cmd = model.EXTRACTMETADATA

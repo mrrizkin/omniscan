@@ -2,6 +2,8 @@ package pdfextract
 
 import (
 	"sort"
+
+	"github.com/mrrizkin/omniscan/pkg/pdf-extract/utils"
 )
 
 type Page struct {
@@ -13,7 +15,7 @@ func (p *Page) GetTextByRow(tolerance float64) (Rows, error) {
 	currentPosition := 0.0
 	rowIndex := -1
 	for _, object := range p.content {
-		if !isEqualTolerance(object.Position.Y, currentPosition, tolerance) {
+		if !utils.IsEqualTolerance(object.Position.Y, currentPosition, tolerance) {
 			row = append(row, Row{
 				Content: []Text{{
 					Font:     object.FontName,

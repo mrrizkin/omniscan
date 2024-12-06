@@ -3,19 +3,20 @@ package pdfextract
 import (
 	"strings"
 
+	"github.com/mrrizkin/omniscan/pkg/pdf-extract/encoder"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 )
 
 type (
 	fontObject struct {
 		*model.FontObject
-		decoder *ToUnicodeDecoder
+		cmap *encoder.CMap
 	}
 
 	fontObjects map[string]*fontObject
 )
 
-func (fo *fontObject) ToUnicode(ctx *model.Context) error {
+func (fo *fontObject) GetCharacterMap(ctx *model.Context) error {
 	toUnicode, ok := fo.FontDict.Find("ToUnicode")
 	if !ok {
 		return nil
@@ -35,19 +36,23 @@ func (fo *fontObject) ToUnicode(ctx *model.Context) error {
 		return err
 	}
 
-	decoder, err := NewToUnicodeDecoder(toUnicodeStream.Content)
+	cmap, err := encoder.ParseCmap(toUnicodeStream.Content)
 	if err != nil {
 		return err
 	}
 
-	fo.decoder = decoder
+	if fo.cmap == nil {
+		fo.cmap = cmap
+	} else {
+		fo.cmap.Merge(cmap)
+	}
 
 	return nil
 }
 
-func (fo *fontObject) Decode(raw string) (text string) {
-	if fo.decoder != nil {
-		return fo.decoder.Decode([]byte(raw))
+func (fo *fontObject) Decode(raw string) string {
+	if fo.cmap != nil {
+		return fo.cmap.Decode(raw)
 	}
 	return raw
 }

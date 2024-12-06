@@ -1,24 +1,15 @@
-package pdfextract
+package encoder
 
-import (
-	"bufio"
-	"bytes"
-	"encoding/binary"
-	"fmt"
-	"strconv"
-	"strings"
-	"unicode"
-	"unicode/utf16"
-)
+import "unicode"
 
-const noRune = unicode.ReplacementChar
+const NoRune = unicode.ReplacementChar
 
 // See PDF 32000-1:2008, Table D.2
 var (
-	pdfDocEncoding = [256]rune{
-		noRune, noRune, noRune, noRune, noRune, noRune, noRune, noRune,
-		noRune, 0x0009, 0x000a, noRune, noRune, 0x000d, noRune, noRune,
-		noRune, noRune, noRune, noRune, noRune, noRune, noRune, noRune,
+	PdfDocEncoding = [256]rune{
+		NoRune, NoRune, NoRune, NoRune, NoRune, NoRune, NoRune, NoRune,
+		NoRune, 0x0009, 0x000a, NoRune, NoRune, 0x000d, NoRune, NoRune,
+		NoRune, NoRune, NoRune, NoRune, NoRune, NoRune, NoRune, NoRune,
 		0x02d8, 0x02c7, 0x02c6, 0x02d9, 0x02dd, 0x02db, 0x02da, 0x02dc,
 		0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027,
 		0x0028, 0x0029, 0x002a, 0x002b, 0x002c, 0x002d, 0x002e, 0x002f,
@@ -31,13 +22,13 @@ var (
 		0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067,
 		0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x006f,
 		0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077,
-		0x0078, 0x0079, 0x007a, 0x007b, 0x007c, 0x007d, 0x007e, noRune,
+		0x0078, 0x0079, 0x007a, 0x007b, 0x007c, 0x007d, 0x007e, NoRune,
 		0x2022, 0x2020, 0x2021, 0x2026, 0x2014, 0x2013, 0x0192, 0x2044,
 		0x2039, 0x203a, 0x2212, 0x2030, 0x201e, 0x201c, 0x201d, 0x2018,
 		0x2019, 0x201a, 0x2122, 0xfb01, 0xfb02, 0x0141, 0x0152, 0x0160,
-		0x0178, 0x017d, 0x0131, 0x0142, 0x0153, 0x0161, 0x017e, noRune,
+		0x0178, 0x017d, 0x0131, 0x0142, 0x0153, 0x0161, 0x017e, NoRune,
 		0x20ac, 0x00a1, 0x00a2, 0x00a3, 0x00a4, 0x00a5, 0x00a6, 0x00a7,
-		0x00a8, 0x00a9, 0x00aa, 0x00ab, 0x00ac, noRune, 0x00ae, 0x00af,
+		0x00a8, 0x00a9, 0x00aa, 0x00ab, 0x00ac, NoRune, 0x00ae, 0x00af,
 		0x00b0, 0x00b1, 0x00b2, 0x00b3, 0x00b4, 0x00b5, 0x00b6, 0x00b7,
 		0x00b8, 0x00b9, 0x00ba, 0x00bb, 0x00bc, 0x00bd, 0x00be, 0x00bf,
 		0x00c0, 0x00c1, 0x00c2, 0x00c3, 0x00c4, 0x00c5, 0x00c6, 0x00c7,
@@ -67,10 +58,10 @@ var (
 		0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x006f,
 		0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077,
 		0x0078, 0x0079, 0x007a, 0x007b, 0x007c, 0x007d, 0x007e, 0x007f,
-		0x20ac, noRune, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
-		0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, noRune, 0x017d, noRune,
-		noRune, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
-		0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, noRune, 0x017e, 0x0178,
+		0x20ac, NoRune, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
+		0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, NoRune, 0x017d, NoRune,
+		NoRune, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
+		0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, NoRune, 0x017e, 0x0178,
 		0x00a0, 0x00a1, 0x00a2, 0x00a3, 0x00a4, 0x00a5, 0x00a6, 0x00a7,
 		0x00a8, 0x00a9, 0x00aa, 0x00ab, 0x00ac, 0x00ad, 0x00ae, 0x00af,
 		0x00b0, 0x00b1, 0x00b2, 0x00b3, 0x00b4, 0x00b5, 0x00b6, 0x00b7,
@@ -121,11 +112,11 @@ var (
 	}
 )
 
-type byteEncoder struct {
+type ByteEncoder struct {
 	table *[256]rune
 }
 
-func (e *byteEncoder) Decode(raw string) (text string) {
+func (e *ByteEncoder) Decode(raw string) (text string) {
 	r := make([]rune, 0, len(raw))
 	for i := 0; i < len(raw); i++ {
 		r = append(r, e.table[raw[i]])
@@ -133,142 +124,14 @@ func (e *byteEncoder) Decode(raw string) (text string) {
 	return string(r)
 }
 
-func isPDFDocEncoded(s string) bool {
-	if isUTF16(s) {
-		return false
-	}
-	for i := 0; i < len(s); i++ {
-		if pdfDocEncoding[s[i]] == noRune {
-			return false
-		}
-	}
-	return true
+func NewWinAnsiEncoding() *ByteEncoder {
+	return &ByteEncoder{table: &winAnsiEncoding}
 }
 
-func pdfDocDecode(s string) string {
-	for i := 0; i < len(s); i++ {
-		if s[i] >= 0x80 || pdfDocEncoding[s[i]] != rune(s[i]) {
-			goto Decode
-		}
-	}
-	return s
-
-Decode:
-	r := make([]rune, len(s))
-	for i := 0; i < len(s); i++ {
-		r[i] = pdfDocEncoding[s[i]]
-	}
-	return string(r)
+func NewPDFDocEncoding() *ByteEncoder {
+	return &ByteEncoder{table: &PdfDocEncoding}
 }
 
-func isUTF16(s string) bool {
-	return len(s) >= 2 && s[0] == 0xfe && s[1] == 0xff && len(s)%2 == 0
-}
-
-func utf16Decode(s string) string {
-	var u []uint16
-	for i := 0; i < len(s); i += 2 {
-		u = append(u, uint16(s[i])<<8|uint16(s[i+1]))
-	}
-	return string(utf16.Decode(u))
-}
-
-type ToUnicodeDecoder struct {
-	charMappings map[uint32]rune
-}
-
-// NewToUnicodeDecoder creates a new decoder from a ToUnicode CMap
-func NewToUnicodeDecoder(toUnicodeCMap []byte) (*ToUnicodeDecoder, error) {
-	decoder := &ToUnicodeDecoder{
-		charMappings: make(map[uint32]rune),
-	}
-
-	// Parse the CMap
-	err := decoder.parseCMap(toUnicodeCMap)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse ToUnicode CMap: %v", err)
-	}
-
-	return decoder, nil
-}
-
-// parseCMap handles parsing the ToUnicode CMap
-func (d *ToUnicodeDecoder) parseCMap(cmapData []byte) error {
-	reader := bytes.NewReader(cmapData)
-	scanner := bufio.NewScanner(reader)
-
-	// Parsing state variables
-	var (
-		inBfChar  bool
-		inBfRange bool
-	)
-
-	for scanner.Scan() {
-		lineStr := scanner.Text()
-
-		// Detect CMap sections
-		switch {
-		case strings.Contains(lineStr, "beginbfchar"):
-			inBfChar = true
-			continue
-		case strings.Contains(lineStr, "endbfchar"):
-			inBfChar = false
-			continue
-		case strings.Contains(lineStr, "beginbfrange"):
-			inBfRange = true
-			continue
-		case strings.Contains(lineStr, "endbfrange"):
-			inBfRange = false
-			continue
-		}
-
-		// Process different sections
-		switch {
-		case inBfChar:
-			// Direct character mappings
-			if match := bfCharRegex.FindStringSubmatch(lineStr); match != nil {
-				code, _ := strconv.ParseUint(match[1], 16, 32)
-				unicode, _ := strconv.ParseUint(match[2], 16, 32)
-				d.charMappings[uint32(code)] = rune(unicode)
-			}
-		case inBfRange:
-			// Range-based character mappings
-			if match := bfRangeRegex.FindStringSubmatch(lineStr); match != nil {
-				startCode, _ := strconv.ParseUint(match[1], 16, 32)
-				endCode, _ := strconv.ParseUint(match[2], 16, 32)
-				targetCode, _ := strconv.ParseUint(match[3], 16, 32)
-
-				for i := startCode; i <= endCode; i++ {
-					d.charMappings[uint32(i)] = rune(targetCode + (i - startCode))
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
-// Decode converts Identity-H encoded bytes to a Unicode string
-func (d *ToUnicodeDecoder) Decode(input []byte) string {
-	var result []rune
-
-	// Process input in 2-byte chunks for Identity-H
-	for i := 0; i < len(input); i += 2 {
-		if i+1 >= len(input) {
-			break
-		}
-
-		// Convert 2 bytes to uint32
-		code := binary.BigEndian.Uint16(input[i : i+2])
-
-		// Look up Unicode mapping
-		if unicode, ok := d.charMappings[uint32(code)]; ok {
-			result = append(result, unicode)
-		} else {
-			// Fallback: use the code point itself if no mapping found
-			result = append(result, rune(code))
-		}
-	}
-
-	return string(result)
+func NewMacRomanEncoding() *ByteEncoder {
+	return &ByteEncoder{table: &macRomanEncoding}
 }

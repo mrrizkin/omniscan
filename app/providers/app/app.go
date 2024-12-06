@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"runtime/debug"
 	"time"
 
 	"github.com/gofiber/contrib/fiberzerolog"
@@ -168,7 +167,7 @@ func createServer(
 	app.Use(recover.New(recover.Config{
 		EnableStackTrace: true,
 		StackTraceHandler: func(_ *fiber.Ctx, e interface{}) {
-			log.Error(fmt.Sprintf("panic: %v\n", e), "stack", debug.Stack())
+			log.Error(fmt.Sprintf("panic: %v\n", e))
 		},
 	}))
 	app.Use(idempotency.New())

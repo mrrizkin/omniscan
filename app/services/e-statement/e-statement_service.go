@@ -62,7 +62,7 @@ func (s *EStatementService) ScanEStatement(
 		return nil, err
 	}
 
-	metadata, err := pdfextract.NewMetadata(file, fileHeader.Filename)
+	metadata, err := pdfextract.ExtractMetadata(file, fileHeader.Filename)
 	if err != nil {
 		s.log.Error("failed to create pdf metadata", "err", err)
 		return nil, err

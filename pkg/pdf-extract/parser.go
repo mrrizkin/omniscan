@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/mrrizkin/omniscan/pkg/pdf-extract/encoder"
 )
 
 var (
@@ -25,6 +27,9 @@ type parserState struct {
 
 func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
 	scanner := bufio.NewScanner(r)
+
+	var winAnsiEncoding *encoder.ByteEncoder = nil
+	var macRomanEncoding *encoder.ByteEncoder = nil
 
 	var result []TextObject
 	state := parserState{
@@ -60,18 +65,22 @@ func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
 
 			// Parse text content
 			if textMatch := textRegex.FindStringSubmatch(line); len(textMatch) > 1 {
-				if isPDFDocEncoded(textMatch[1]) {
-					state.CurrentTextObject.Text = pdfDocDecode(textMatch[1])
-				} else if isUTF16(textMatch[1]) {
-					state.CurrentTextObject.Text = utf16Decode(textMatch[1][2:])
+				if encoder.IsPDFDocEncoded(textMatch[1]) {
+					state.CurrentTextObject.Text = encoder.PdfDocDecode(textMatch[1])
+				} else if encoder.IsUTF16(textMatch[1]) {
+					state.CurrentTextObject.Text = encoder.Utf16Decode(textMatch[1][2:])
 				} else {
 					switch state.CurrentTextObject.Encoding {
 					case "WinAnsiEncoding":
-						encoder := &byteEncoder{&winAnsiEncoding}
-						state.CurrentTextObject.Text += encoder.Decode(textMatch[1])
+						if winAnsiEncoding == nil {
+							winAnsiEncoding = encoder.NewWinAnsiEncoding()
+						}
+						state.CurrentTextObject.Text += winAnsiEncoding.Decode(textMatch[1])
 					case "MacRomanEncoding":
-						encoder := &byteEncoder{&macRomanEncoding}
-						state.CurrentTextObject.Text += encoder.Decode(textMatch[1])
+						if macRomanEncoding == nil {
+							macRomanEncoding = encoder.NewMacRomanEncoding()
+						}
+						state.CurrentTextObject.Text += macRomanEncoding.Decode(textMatch[1])
 					case "Identity-H":
 						text := textMatch[1]
 						font, ok := p.fonts.Get(state.CurrentTextObject.ResourceName)
