@@ -1,28 +1,6 @@
 package pdfextract
 
 type (
-	Position struct {
-		X float64
-		Y float64
-	}
-
-	TextObject struct {
-		FontName     string
-		Encoding     string
-		ResourceName string
-		Text         string
-		FontSize     float64
-		Position     Position
-	}
-
-	Text struct {
-		Font     string
-		FontSize float64
-		X        float64
-		Y        float64
-		S        string
-	}
-
 	Row struct {
 		Position float64
 		Content  []Text

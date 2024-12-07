@@ -147,6 +147,12 @@ github.com/valyala/tcplisten v1.0.0 h1:rBHj/Xf+E1tRGZyWIWwJDiRY0zc1Js+CV5DqwacVS
 github.com/valyala/tcplisten v1.0.0/go.mod h1:T0xQ8SeCZGxckz9qRXTfG43PvQ/mcWh7FwZEA7Ioqkc=
 github.com/xyproto/randomstring v1.0.5 h1:YtlWPoRdgMu3NZtP45drfy1GKoojuR7hmRcnhZqKjWU=
 github.com/xyproto/randomstring v1.0.5/go.mod h1:rgmS5DeNXLivK7YprL0pY+lTuhNQW3iGxZ18UQApw/E=
+github.com/zalgonoise/cur v0.0.0-20221228011751-cdba7832420f h1:E8Jhx3jt20u6OZ9CNgoz/h1OfuxinQDashwlA0/yxOk=
+github.com/zalgonoise/cur v0.0.0-20221228011751-cdba7832420f/go.mod h1:nCikzsmXk+xXZS7tk0Q4wA6H5rYMqopV8C5dM0DuUeE=
+github.com/zalgonoise/gio v0.0.0-20221231224511-990149dd48ad h1:rv93oyGpIyLYOzo8HFjBtpHejlnPagQjqU/mAPoMLmI=
+github.com/zalgonoise/gio v0.0.0-20221231224511-990149dd48ad/go.mod h1:nhc82H2KvRf8/28o3RGBnJM/k7NapcDGPegqGIOqATY=
+github.com/zalgonoise/lex v0.0.0-20230210133743-771cae9540b7 h1:0oKoHdbDXnujmZWNVoDfLlNE1PLB/SYqWkTN19x0sYw=
+github.com/zalgonoise/lex v0.0.0-20230210133743-771cae9540b7/go.mod h1:iX2pTl/kiQb7RVQvS/8WgnzcVWG0igsGhwObKvnwjfU=
 go.uber.org/dig v1.18.0 h1:imUL1UiY0Mg4bqbFfsRQO5G4CGRBec/ZujWTvSVp3pw=
 go.uber.org/dig v1.18.0/go.mod h1:Us0rSJiThwCv2GteUN0Q7OKvU7n5J4dxZ9JKUXozFdE=
 go.uber.org/fx v1.23.0 h1:lIr/gYWQGfTwGcSXWXu4vP5Ws6iqnNEIY+F/aFzCKTg=

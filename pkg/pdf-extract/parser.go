@@ -28,9 +28,6 @@ type parserState struct {
 func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
 	scanner := bufio.NewScanner(r)
 
-	var winAnsiEncoding *encoder.ByteEncoder = nil
-	var macRomanEncoding *encoder.ByteEncoder = nil
-
 	var result []TextObject
 	state := parserState{
 		State: "INITIAL",
@@ -54,9 +51,6 @@ func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
 					if font, ok := p.fonts.Get(parts[0]); ok {
 						state.CurrentTextObject.ResourceName = parts[0]
 						state.CurrentTextObject.FontName = font.FontName
-						if encoding, ok := font.FontDict.Find("Encoding"); ok {
-							state.CurrentTextObject.Encoding = encoding.String()
-						}
 					}
 					fontSize, _ := strconv.ParseFloat(parts[1], 64)
 					state.CurrentTextObject.FontSize = fontSize
@@ -70,29 +64,9 @@ func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
 				} else if encoder.IsUTF16(textMatch[1]) {
 					state.CurrentTextObject.Text = encoder.Utf16Decode(textMatch[1][2:])
 				} else {
-					switch state.CurrentTextObject.Encoding {
-					case "WinAnsiEncoding":
-						if winAnsiEncoding == nil {
-							winAnsiEncoding = encoder.NewWinAnsiEncoding()
-						}
-						state.CurrentTextObject.Text += winAnsiEncoding.Decode(textMatch[1])
-					case "MacRomanEncoding":
-						if macRomanEncoding == nil {
-							macRomanEncoding = encoder.NewMacRomanEncoding()
-						}
-						state.CurrentTextObject.Text += macRomanEncoding.Decode(textMatch[1])
-					case "Identity-H":
-						text := textMatch[1]
-						font, ok := p.fonts.Get(state.CurrentTextObject.ResourceName)
-						if !ok {
-							goto AssignText
-						}
-
-						text = font.Decode(text)
-
-					AssignText:
-						state.CurrentTextObject.Text += text
-					default:
+					if font, ok := p.fonts.Get(state.CurrentTextObject.ResourceName); ok {
+						state.CurrentTextObject.Text += font.Decode(textMatch[1])
+					} else {
 						state.CurrentTextObject.Text += textMatch[1]
 					}
 				}

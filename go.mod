@@ -68,6 +68,9 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.57.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	github.com/zalgonoise/cur v0.0.0-20221228011751-cdba7832420f // indirect
+	github.com/zalgonoise/gio v0.0.0-20221231224511-990149dd48ad // indirect
+	github.com/zalgonoise/lex v0.0.0-20230210133743-771cae9540b7 // indirect
 	go.uber.org/dig v1.18.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
