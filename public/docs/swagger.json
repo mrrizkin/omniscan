@@ -599,8 +599,8 @@
                 "info": {
                     "$ref": "#/definitions/types.ScanInfo"
                 },
-                "meta": {
-                    "$ref": "#/definitions/pdfextract.Metadata"
+                "metadata": {
+                    "$ref": "#/definitions/pdf.Metadata"
                 },
                 "summary": {
                     "$ref": "#/definitions/estatement.OverallSummary"
@@ -849,6 +849,9 @@
                         "$ref": "#/definitions/models.EStatementDetail"
                     }
                 },
+                "e_statement_metadata": {
+                    "$ref": "#/definitions/models.EStatementMetadata"
+                },
                 "expired": {
                     "type": "string"
                 },
@@ -912,6 +915,125 @@
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.EStatementMetadata": {
+            "type": "object",
+            "properties": {
+                "appendOnly": {
+                    "type": "boolean"
+                },
+                "attachments": {
+                    "type": "string"
+                },
+                "author": {
+                    "type": "string"
+                },
+                "bookmarks": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creator": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "e_statement_id": {
+                    "type": "integer"
+                },
+                "encrypted": {
+                    "type": "boolean"
+                },
+                "form": {
+                    "type": "boolean"
+                },
+                "hybrid": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keywords": {
+                    "type": "string"
+                },
+                "linearized": {
+                    "type": "boolean"
+                },
+                "modificationDate": {
+                    "type": "string"
+                },
+                "names": {
+                    "type": "boolean"
+                },
+                "pageBoundaries": {
+                    "type": "string"
+                },
+                "pageCount": {
+                    "type": "integer"
+                },
+                "pageLayout": {
+                    "type": "string"
+                },
+                "pageMode": {
+                    "type": "string"
+                },
+                "pageSizes": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "integer"
+                },
+                "producer": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "string"
+                },
+                "signatures": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "tagged": {
+                    "type": "boolean"
+                },
+                "thumbnails": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "unit": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "usingObjectStreams": {
+                    "type": "boolean"
+                },
+                "usingXRefStreams": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "watermarked": {
+                    "type": "boolean"
+                },
+                "xmlmetadata": {
                     "type": "string"
                 }
             }
@@ -1035,7 +1157,7 @@
                 }
             }
         },
-        "pdfextract.Metadata": {
+        "pdf.Metadata": {
             "type": "object",
             "properties": {
                 "appendOnly": {
