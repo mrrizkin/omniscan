@@ -2,29 +2,19 @@ package bca
 
 import (
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/types"
-	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
+	"github.com/mrrizkin/omniscan/pkg/pdf"
 )
 
-type BCA struct{}
-
-func New() *BCA {
-	return &BCA{}
-}
-
-func (bca *BCA) ProcessFromBytes(filename string, b []byte) (*types.ScanResult, error) {
-	pdfReader, err := pdfextract.NewReader(b)
-	if err != nil {
-		return nil, err
-	}
+func ScanFromBytes(filename string, pdfReader pdf.PDFReader) (*types.ScanResult, error) {
 	trx, header, err := processPdf(pdfReader)
 	if err != nil {
 		return nil, err
 	}
 
-	return bca.maptrx(header, trx), nil
+	return maptrx(header, trx), nil
 }
 
-func (*BCA) maptrx(header Header, trxs Transactions) *types.ScanResult {
+func maptrx(header Header, trxs Transactions) *types.ScanResult {
 	res := new(types.ScanResult)
 	res.Transactions = make([]*types.Transaction, len(trxs))
 	totalBalance := 0.0

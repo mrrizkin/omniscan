@@ -1,10 +1,10 @@
-package pdfextract
+package pdfcpu
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/mrrizkin/omniscan/pkg/pdf-extract/encoder"
+	"github.com/mrrizkin/omniscan/pkg/pdf/provider/pdfcpu/encoder"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 )
@@ -20,14 +20,6 @@ type (
 		Text     string
 		FontSize float64
 		Position Position
-	}
-
-	Text struct {
-		Font     string
-		FontSize float64
-		X        float64
-		Y        float64
-		S        string
 	}
 
 	fontObject struct {

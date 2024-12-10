@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mrrizkin/omniscan/pkg/pdf-extract/utils"
+	"github.com/mrrizkin/omniscan/pkg/pdf/utils"
 )
 
 var (
@@ -52,45 +52,6 @@ func (cm *CMap) Merge(other *CMap) {
 		cm.space[i] = append(cm.space[i], other.space[i]...)
 	}
 }
-
-// switch c = b.readByte(); c {
-// 		default:
-// 			b.errorf("invalid escape sequence \\%c", c)
-// 			tmp = append(tmp, '\\', c)
-// 		case 'n':
-// 			tmp = append(tmp, '\n')
-// 		case 'r':
-// 			tmp = append(tmp, '\r')
-// 		case 'b':
-// 			tmp = append(tmp, '\b')
-// 		case 't':
-// 			tmp = append(tmp, '\t')
-// 		case 'f':
-// 			tmp = append(tmp, '\f')
-// 		case '(', ')', '\\':
-// 			tmp = append(tmp, c)
-// 		case '\r':
-// 			if b.readByte() != '\n' {
-// 				b.unreadByte()
-// 			}
-// 			fallthrough
-// 		case '\n':
-// 			// no append
-// 		case '0', '1', '2', '3', '4', '5', '6', '7':
-// 			x := int(c - '0')
-// 			for i := 0; i < 2; i++ {
-// 				c = b.readByte()
-// 				if c < '0' || c > '7' {
-// 					b.unreadByte()
-// 					break
-// 				}
-// 				x = x*8 + int(c-'0')
-// 			}
-// 			if x > 255 {
-// 				b.errorf("invalid octal escape \\%03o", x)
-// 			}
-// 			tmp = append(tmp, byte(x))
-// 		}
 
 func (cm *CMap) Decode(original string) string {
 	if strings.Contains(original, "\\") {

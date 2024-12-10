@@ -1,4 +1,4 @@
-package pdfextract
+package pdfcpu
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mrrizkin/omniscan/pkg/pdf-extract/encoder"
+	"github.com/mrrizkin/omniscan/pkg/pdf/provider/pdfcpu/encoder"
 )
 
 var (
@@ -27,7 +27,7 @@ type parserState struct {
 	TextObjects       []TextObject
 }
 
-func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
+func (p *PDFCPU) parse(r io.Reader) ([]TextObject, error) {
 	scanner := bufio.NewScanner(r)
 
 	var result []TextObject
@@ -66,6 +66,7 @@ func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
 			}
 
 			// Parse text content
+			// FIXME: Handle complex text encoding
 			if textMatch := textRegex.FindStringSubmatch(line); len(textMatch) > 1 {
 				if encoder.IsPDFDocEncoded(textMatch[1]) {
 					state.CurrentTextObject.Text = encoder.PdfDocDecode(textMatch[1])

@@ -21,7 +21,7 @@ func Hex2Bytes(hexStr string) ([]byte, error) {
 	return result, nil
 }
 
-func IsEqualTolerance(a, b, tolerance float64) bool {
+func IsEqualTolerance[T comparable](a, b, tolerance float64) bool {
 	return math.Abs(a-b) < tolerance
 }
 

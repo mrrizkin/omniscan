@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
+	"github.com/mrrizkin/omniscan/pkg/pdf"
 )
 
 var yearRegex = regexp.MustCompile(`\d\d\d\d`)
@@ -26,7 +26,7 @@ var months = []string{
 
 // this is the internal function called by the exported
 // ProcessPdf*** functions
-func processPdf(pdfR *pdfextract.Reader) (Transactions, Header, error) {
+func processPdf(pdfR pdf.PDFReader) (Transactions, Header, error) {
 	totalPage := pdfR.NumPage()
 	transactions := make([]*Transaction, 0)
 	var currentTransaction *Transaction = nil
@@ -53,7 +53,7 @@ func processPdf(pdfR *pdfextract.Reader) (Transactions, Header, error) {
 			if aftTanggal {
 				isNew, currentTransaction, shouldStopProcessing = IngestRow(
 					currentTransaction,
-					&row,
+					row,
 					year,
 				)
 				if isNew {

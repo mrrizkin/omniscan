@@ -30,6 +30,7 @@ func (m *Model) Construct() interface{} {
 			models: []interface{}{
 				&EStatement{},
 				&EStatementDetail{},
+				&EStatementMetadata{},
 				&Permission{},
 				&Role{},
 				&RolePermission{},

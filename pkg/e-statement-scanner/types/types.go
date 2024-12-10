@@ -1,13 +1,10 @@
 package types
 
 import (
-	"encoding/json"
 	"time"
-)
 
-type EStatementScanner interface {
-	ProcessFromBytes(filname string, b []byte) (*ScanResult, error)
-}
+	"github.com/mrrizkin/omniscan/pkg/pdf"
+)
 
 type Transaction struct {
 	Date            time.Time `json:"date,omitempty"`
@@ -29,26 +26,5 @@ type ScanInfo struct {
 type ScanResult struct {
 	Info         ScanInfo       `json:"info"`
 	Transactions []*Transaction `json:"transactions"`
-}
-
-type PDFMetadata struct {
-	Title        string `json:"title"`
-	Author       string `json:"author"`
-	Subject      string `json:"subject"`
-	Keywords     string `json:"keywords"`
-	Creator      string `json:"creator"`
-	Producer     string `json:"producer"`
-	CreationDate string `json:"creation_date"`
-	ModDate      string `json:"mod_date"`
-	PageCount    int    `json:"page_count"`
-	PDFVersion   string `json:"pdf_version"`
-}
-
-func (p *PDFMetadata) String() string {
-	encode, err := json.Marshal(p)
-	if err != nil {
-		return ""
-	}
-
-	return string(encode)
+	Metadata     *pdf.Metadata  `json:"metadata"`
 }

@@ -1,4 +1,4 @@
-package pdfextract
+package pdf
 
 import (
 	"bytes"

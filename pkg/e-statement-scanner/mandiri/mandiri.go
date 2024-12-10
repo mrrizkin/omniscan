@@ -1,33 +1,20 @@
-package bcaledongthuc
+package mandiri
 
 import (
-	"bytes"
-
-	"github.com/ledongthuc/pdf"
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/types"
+	"github.com/mrrizkin/omniscan/pkg/pdf"
 )
 
-type BCAOld struct{}
-
-func New() *BCAOld {
-	return &BCAOld{}
-}
-
-func (bca *BCAOld) ProcessFromBytes(filename string, b []byte) (*types.ScanResult, error) {
-	r := bytes.NewReader(b)
-	pdfR, err := pdf.NewReader(r, r.Size())
-	if err != nil {
-		return nil, err
-	}
-	trx, header, err := processPdf(pdfR)
+func ScanFromBytes(filename string, pdfReader pdf.PDFReader) (*types.ScanResult, error) {
+	trx, header, err := processPdf(pdfReader)
 	if err != nil {
 		return nil, err
 	}
 
-	return bca.maptrx(header, trx), nil
+	return maptrx(header, trx), nil
 }
 
-func (*BCAOld) maptrx(header Header, trxs Transactions) *types.ScanResult {
+func maptrx(header Header, trxs Transactions) *types.ScanResult {
 	res := new(types.ScanResult)
 	res.Transactions = make([]*types.Transaction, len(trxs))
 	totalBalance := 0.0
@@ -59,7 +46,7 @@ func (*BCAOld) maptrx(header Header, trxs Transactions) *types.ScanResult {
 		countTransaction = 1
 	}
 
-	res.Info.Bank = "BCA"
+	res.Info.Bank = "Mandiri"
 	res.Info.Produk = header.Product
 	res.Info.Rekening = header.Rekening
 	res.Info.Periode = header.Periode

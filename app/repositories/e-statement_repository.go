@@ -20,6 +20,10 @@ func (r *EStatementRepository) Construct() interface{} {
 	}
 }
 
+func (r *EStatementRepository) Begin() *gorm.DB {
+	return r.db.Begin()
+}
+
 func (r *EStatementRepository) FindAll(page, perPage int) ([]models.EStatement, error) {
 	eStatement := make([]models.EStatement, 0)
 	err := r.db.
@@ -35,12 +39,16 @@ func (r *EStatementRepository) FindAllCount() (int64, error) {
 	return count, err
 }
 
-func (r *EStatementRepository) Aggregate(eStatement *models.EStatement) error {
-	return r.db.Create(eStatement).Error
+func (r *EStatementRepository) Aggregate(eStatement *models.EStatement, db *gorm.DB) error {
+	return db.Create(eStatement).Error
 }
 
-func (r *EStatementRepository) AggregateDetail(eStatementDetail []models.EStatementDetail) error {
-	return r.db.Create(eStatementDetail).Error
+func (r *EStatementRepository) AggregateMetadata(eStatementMetadata *models.EStatementMetadata, db *gorm.DB) error {
+	return db.Create(eStatementMetadata).Error
+}
+
+func (r *EStatementRepository) AggregateDetail(eStatementDetail []models.EStatementDetail, db *gorm.DB) error {
+	return db.Create(eStatementDetail).Error
 }
 
 func (r *EStatementRepository) IsFileAlreadyScanned(filename string) bool {

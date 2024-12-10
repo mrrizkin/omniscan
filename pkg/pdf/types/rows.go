@@ -1,13 +1,4 @@
-package pdfextract
-
-type (
-	Row struct {
-		Position float64
-		Content  []Text
-	}
-
-	Rows []Row
-)
+package types
 
 func (rows Rows) Len() int {
 	return len(rows)

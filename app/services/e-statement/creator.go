@@ -5,7 +5,6 @@ import (
 
 	"github.com/mrrizkin/omniscan/app/models"
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/types"
-	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
 )
 
 func (s *EStatementService) createEStatementModel(
@@ -21,6 +20,13 @@ func (s *EStatementService) createEStatementModel(
 		Periode:  scanResult.Info.Periode,
 		Expired:  &expiry,
 	}
+}
+
+func (s *EStatementService) createEStatementMetadataModel(
+	scanResult *types.ScanResult,
+	eStatementID uint,
+) (*models.EStatementMetadata, error) {
+	return models.IntoEstatementMetadata(eStatementID, scanResult.Metadata)
 }
 
 func (s *EStatementService) createEStatementDetailModels(
@@ -46,13 +52,11 @@ func (s *EStatementService) createEStatementDetailModels(
 func (s *EStatementService) createScanEStatementResponse(
 	eStatementID uint,
 	scanResult *types.ScanResult,
-	metadata *pdfextract.Metadata,
 	summary *OverallSummary,
 ) *ScanEStatementResponse {
 	return &ScanEStatementResponse{
 		EStatementID: eStatementID,
 		ScanResult:   scanResult,
-		Meta:         metadata,
 		Summary:      *summary,
 	}
 }

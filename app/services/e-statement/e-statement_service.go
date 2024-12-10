@@ -8,7 +8,6 @@ import (
 	"github.com/mrrizkin/omniscan/app/providers/logger"
 	"github.com/mrrizkin/omniscan/app/repositories"
 	estatementscanner "github.com/mrrizkin/omniscan/pkg/e-statement-scanner"
-	pdfextract "github.com/mrrizkin/omniscan/pkg/pdf-extract"
 
 	"github.com/mrrizkin/omniscan/pkg/e-statement-scanner/types"
 )
@@ -62,12 +61,6 @@ func (s *EStatementService) ScanEStatement(
 		return nil, err
 	}
 
-	metadata, err := pdfextract.ExtractMetadata(file, fileHeader.Filename)
-	if err != nil {
-		s.log.Error("failed to create pdf metadata", "err", err)
-		return nil, err
-	}
-
 	summaryField := make([]string, 0)
 	if payload.Summary != "" {
 		fields := strings.Split(payload.Summary, ",")
@@ -77,10 +70,10 @@ func (s *EStatementService) ScanEStatement(
 	}
 
 	if s.repo.IsFileAlreadyScanned(fileHeader.Filename) {
-		return s.getExistingEStatementResponse(fileHeader, metadata, summaryField)
+		return s.getExistingEStatementResponse(fileHeader, summaryField)
 	}
 
-	return s.processNewEStatement(payload, fileHeader, file, metadata, summaryField)
+	return s.processNewEStatement(payload, fileHeader, file, summaryField)
 }
 
 func (s *EStatementService) GetSummary(eStatementID uint) (*OverallSummary, error) {
@@ -89,7 +82,6 @@ func (s *EStatementService) GetSummary(eStatementID uint) (*OverallSummary, erro
 
 func (s *EStatementService) getExistingEStatementResponse(
 	fileHeader *multipart.FileHeader,
-	metadata *pdfextract.Metadata,
 	summaryField []string,
 ) (*ScanEStatementResponse, error) {
 	eStatement, err := s.repo.GetEStatementByFilename(fileHeader.Filename)
@@ -119,7 +111,6 @@ func (s *EStatementService) getExistingEStatementResponse(
 	return s.createScanEStatementResponse(
 		eStatement.ID,
 		&scanResult,
-		metadata,
 		summary,
 	), nil
 }
@@ -128,10 +119,9 @@ func (s *EStatementService) processNewEStatement(
 	payload *ScanEStatementPayload,
 	fileHeader *multipart.FileHeader,
 	file []byte,
-	metadata *pdfextract.Metadata,
 	summaryField []string,
 ) (*ScanEStatementResponse, error) {
-	scanResult, err := s.scanner.Scan(payload.Provider, fileHeader.Filename, file)
+	scanResult, err := s.scanner.Scan(payload.Bank, payload.PDFLib, fileHeader.Filename, file)
 	if err != nil {
 		s.log.Error("failed to scan e-statement when scanning", "err", err)
 		return nil, err
@@ -155,15 +145,42 @@ func (s *EStatementService) processNewEStatement(
 
 	eStatement := s.createEStatementModel(scanResult, fileHeader.Filename, expiredEStatement)
 
-	if err := s.repo.Aggregate(eStatement); err != nil {
+	transaction := s.repo.Begin()
+	err = transaction.Error
+	if err != nil {
+		transaction.Rollback()
+		s.log.Error("failed to begin transaction", "err", err)
+		return nil, err
+	}
+
+	if err := s.repo.Aggregate(eStatement, transaction); err != nil {
+		transaction.Rollback()
 		s.log.Error("failed to aggregate e-statement", "err", err)
 		return nil, err
 	}
 
-	eStatementDetail := s.createEStatementDetailModels(scanResult.Transactions, eStatement.ID)
+	eStatementMetadata, err := s.createEStatementMetadataModel(scanResult, eStatement.ID)
+	if err != nil {
+		transaction.Rollback()
+		s.log.Error("failed to create e-statement metadata model", "err", err)
+		return nil, err
+	}
 
-	if err := s.repo.AggregateDetail(eStatementDetail); err != nil {
+	if err := s.repo.AggregateMetadata(eStatementMetadata, transaction); err != nil {
+		transaction.Rollback()
+		s.log.Error("failed to aggregate e-statement metadata", "err", err)
+		return nil, err
+	}
+
+	eStatementDetail := s.createEStatementDetailModels(scanResult.Transactions, eStatement.ID)
+	if err := s.repo.AggregateDetail(eStatementDetail, transaction); err != nil {
+		transaction.Rollback()
 		s.log.Error("failed to aggregate e-statement detail", "err", err)
+		return nil, err
+	}
+
+	if err := transaction.Commit().Error; err != nil {
+		s.log.Error("failed to commit transaction", "err", err)
 		return nil, err
 	}
 
@@ -176,7 +193,6 @@ func (s *EStatementService) processNewEStatement(
 	return s.createScanEStatementResponse(
 		eStatement.ID,
 		scanResult,
-		metadata,
 		summary,
 	), nil
 }
