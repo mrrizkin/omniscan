@@ -16,11 +16,10 @@ type (
 	}
 
 	TextObject struct {
-		FontName     string
-		ResourceName string
-		Text         string
-		FontSize     float64
-		Position     Position
+		FontName string
+		Text     string
+		FontSize float64
+		Position Position
 	}
 
 	Text struct {
