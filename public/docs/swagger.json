@@ -99,6 +99,31 @@
                         "name": "file",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "PDF library to use",
+                        "name": "pdf_library",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bank name",
+                        "name": "bank",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Time bomb",
+                        "name": "time_bomb",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Summary",
+                        "name": "summary",
+                        "in": "formData"
                     }
                 ],
                 "responses": {

@@ -65,6 +65,8 @@ func (r *EStatementRepository) IsFileAlreadyScanned(filename string) bool {
 func (r *EStatementRepository) GetEStatementByFilename(filename string) (*models.EStatement, error) {
 	eStatement := new(models.EStatement)
 	err := r.db.Where("filename = ?", filename).
+		Preload("EStatementDetail").
+		Preload("EStatementMetadata").
 		First(eStatement).
 		Error
 	if err != nil {

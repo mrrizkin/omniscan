@@ -97,6 +97,11 @@ func (s *EStatementService) getExistingEStatementResponse(
 	}
 
 	transactions := s.convertEStatementDetailToTransactions(eStatement.EStatementDetail)
+	metadata, err := eStatement.EStatementMetadata.ToMetadata()
+	if err != nil {
+		s.log.Error("failed to convert e-statement metadata to metadata", "err", err)
+		return nil, err
+	}
 
 	scanResult := types.ScanResult{
 		Transactions: transactions,
@@ -106,6 +111,7 @@ func (s *EStatementService) getExistingEStatementResponse(
 			Rekening: eStatement.Rekening,
 			Periode:  eStatement.Periode,
 		},
+		Metadata: metadata,
 	}
 
 	return s.createScanEStatementResponse(

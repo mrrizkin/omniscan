@@ -7,6 +7,7 @@ import (
 
 	"github.com/mrrizkin/omniscan/pkg/pdf"
 	"github.com/mrrizkin/omniscan/pkg/pdf/types"
+	"github.com/mrrizkin/omniscan/pkg/pdf/utils"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
@@ -66,10 +67,10 @@ func (p *PDFCPU) NumPage() int {
 
 func (p *Page) GetTextByRow(tolerance float64) (types.Rows, error) {
 	row := make(types.Rows, 0)
-	var currentPosition int64 = 0
+	currentPosition := 0.0
 	rowIndex := -1
 	for _, object := range p.content {
-		if int64(object.Position.Y) == currentPosition {
+		if !utils.IsEqualTolerance(object.Position.Y, currentPosition, tolerance) {
 			row = append(row, &types.Row{
 				Content: types.TextHorizontal{{
 					Font:     object.FontName,
@@ -80,7 +81,7 @@ func (p *Page) GetTextByRow(tolerance float64) (types.Rows, error) {
 				}},
 				Position: int64(object.Position.Y),
 			})
-			currentPosition = int64(object.Position.Y)
+			currentPosition = object.Position.Y
 			rowIndex++
 		} else {
 			if rowIndex == -1 {

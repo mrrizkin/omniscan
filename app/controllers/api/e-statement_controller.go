@@ -119,13 +119,6 @@ func (c *EStatementController) EStatementScan(ctx *fiber.Ctx) error {
 		}
 	}
 
-	if err != nil {
-		return &fiber.Error{
-			Code:    500,
-			Message: "Failed to save the pdf",
-		}
-	}
-
 	scanResult, err := c.eStatementService.ScanEStatement(&payload, filePayload)
 	if err != nil {
 		c.log.Error("failed to scan e-statement", "err", err)
