@@ -5,18 +5,21 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/mrrizkin/omniscan/app/models"
 	"github.com/mrrizkin/omniscan/app/providers/database"
+	"github.com/mrrizkin/omniscan/app/providers/logger"
 	"gorm.io/gorm"
 )
 
 type EStatementRepository struct {
-	db *database.Database
+	db  *database.Database
+	log *logger.Logger
 }
 
 func (r *EStatementRepository) Construct() interface{} {
-	return func(db *database.Database) *EStatementRepository {
-		return &EStatementRepository{db}
+	return func(db *database.Database, log *logger.Logger) *EStatementRepository {
+		return &EStatementRepository{db, log}
 	}
 }
 
@@ -392,6 +395,7 @@ func (r *EStatementRepository) Bomb() error {
 
 	chunkIds := chunk(ids, 1000)
 	for _, chunk := range chunkIds {
+		log.Info("deleting expired e-statements", "ids", chunk)
 		if err := r.db.Unscoped().
 			Where("e_statement_id IN ?", chunk).
 			Delete(&models.EStatementDetail{}).
