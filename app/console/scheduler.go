@@ -18,7 +18,7 @@ func Schedule(
 	// Refer to the scheduler documentation for more advanced usage.
 
 	// deleting expired e-statements
-	schedule.Add("@every 1m", func() {
+	schedule.Add("* * * * *", func() {
 		eStatementRepository.Bomb()
 	})
 }

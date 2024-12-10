@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/mrrizkin/omniscan/app/models"
 	"github.com/mrrizkin/omniscan/app/providers/database"
 	"github.com/mrrizkin/omniscan/app/providers/logger"
@@ -379,7 +378,7 @@ AND date <= ?
 func (r *EStatementRepository) Bomb() error {
 	var expiredEStatements []models.EStatement
 	err := r.db.Where("expired IS NOT NULL AND expired < ?", time.Now()).
-		Order("date ASC").
+		Order("expired ASC").
 		Find(&expiredEStatements).
 		Error
 	if err != nil {
@@ -397,10 +396,17 @@ func (r *EStatementRepository) Bomb() error {
 
 	chunkIds := chunk(ids, 1000)
 	for _, chunk := range chunkIds {
-		log.Info("deleting expired e-statements", "ids", chunk)
+		r.log.Info("deleting expired e-statements", "ids", chunk)
 		if err := r.db.Unscoped().
 			Where("e_statement_id IN ?", chunk).
 			Delete(&models.EStatementDetail{}).
+			Error; err != nil {
+			return err
+		}
+
+		if err := r.db.Unscoped().
+			Where("e_statement_id IN ?", chunk).
+			Delete(&models.EStatementMetadata{}).
 			Error; err != nil {
 			return err
 		}

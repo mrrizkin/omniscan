@@ -40,8 +40,8 @@ func App() *fx.App {
 			models.AutoMigrate,
 			routes.ApiRoutes,
 			routes.WebRoutes,
-			serveHTTP,
 			startScheduler,
+			serveHTTP,
 		),
 
 		fx.WithLogger(useLogger),
