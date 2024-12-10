@@ -21,6 +21,8 @@ var (
 
 type parserState struct {
 	State             string
+	CurrentFont       *fontObject
+	CurrentFontSize   float64
 	CurrentTextObject TextObject
 	TextObjects       []TextObject
 }
@@ -41,6 +43,11 @@ func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
 			if strings.Contains(line, "BT") { // Begin Text block
 				state.State = "TEXT_BLOCK"
 				state.CurrentTextObject = TextObject{}
+
+				if state.CurrentFont != nil {
+					state.CurrentTextObject.FontName = state.CurrentFont.FontName
+					state.CurrentTextObject.FontSize = state.CurrentFontSize
+				}
 			}
 
 		case "TEXT_BLOCK":
@@ -49,11 +56,12 @@ func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
 				parts := strings.Split(fontMatch, " ")
 				if len(parts) >= 2 {
 					if font, ok := p.fonts.Get(parts[0]); ok {
-						state.CurrentTextObject.ResourceName = parts[0]
 						state.CurrentTextObject.FontName = font.FontName
+						state.CurrentFont = font
 					}
 					fontSize, _ := strconv.ParseFloat(parts[1], 64)
 					state.CurrentTextObject.FontSize = fontSize
+					state.CurrentFontSize = fontSize
 				}
 			}
 
@@ -64,8 +72,8 @@ func (p *Reader) parse(r io.Reader) ([]TextObject, error) {
 				} else if encoder.IsUTF16(textMatch[1]) {
 					state.CurrentTextObject.Text = encoder.Utf16Decode(textMatch[1][2:])
 				} else {
-					if font, ok := p.fonts.Get(state.CurrentTextObject.ResourceName); ok {
-						state.CurrentTextObject.Text += font.Decode(textMatch[1])
+					if state.CurrentFont != nil {
+						state.CurrentTextObject.Text += state.CurrentFont.Decode(textMatch[1])
 					} else {
 						state.CurrentTextObject.Text += textMatch[1]
 					}

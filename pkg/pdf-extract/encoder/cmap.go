@@ -147,6 +147,12 @@ Decode:
 								r = append(r, []rune(Utf16Decode(s))...)
 								continue Decode
 							}
+							if sarray, ok := bfrange.dst.([]string); ok {
+								n := text[len(text)-1] - bfrange.lo[len(bfrange.lo)-1]
+								v := sarray[n]
+								r = append(r, []rune(Utf16Decode(v))...)
+								continue Decode
+							}
 							r = append(r, NoRune)
 							continue Decode
 						}

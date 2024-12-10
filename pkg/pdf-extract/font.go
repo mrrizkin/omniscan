@@ -6,6 +6,7 @@ import (
 
 	"github.com/mrrizkin/omniscan/pkg/pdf-extract/encoder"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 )
 
 type (
@@ -30,30 +31,26 @@ type (
 		S        string
 	}
 
-	TextEncoder interface {
-		Decode(raw string) string
-	}
-
 	fontObject struct {
 		*model.FontObject
-		encoder TextEncoder
+		enc encoder.TextEncoding
 	}
 
-	fontObjects map[string]*fontObject
+	fonts map[string]*fontObject
 )
 
 func (fo *fontObject) Decode(raw string) string {
-	if fo.encoder != nil {
-		return fo.encoder.Decode(raw)
+	if fo.enc != nil {
+		return fo.enc.Decode(raw)
 	}
 	return raw
 }
 
-func (fo fontObjects) Get(resourceName string) (*fontObject, bool) {
+func (fs fonts) Get(resourceName string) (*fontObject, bool) {
 	resourceName = strings.TrimPrefix(resourceName, "/")
-	font, ok := fo[resourceName]
+	font, ok := fs[resourceName]
 	if !ok {
-		for name, f := range fo {
+		for name, f := range fs {
 			if strings.Contains(name, resourceName) {
 				font = f
 				ok = true
@@ -64,14 +61,62 @@ func (fo fontObjects) Get(resourceName string) (*fontObject, bool) {
 	return font, ok
 }
 
-func (fo fontObjects) Set(resourceName string, font *fontObject) {
+func (fo fonts) Set(resourceName string, font *fontObject) {
 	fo[resourceName] = font
 }
 
-func getCMap(ctx *model.Context, font *model.FontObject) (*encoder.CMap, error) {
-	toUnicode, ok := font.FontDict.Find("ToUnicode")
+func GetFonts(ctx *model.Context) (fonts, error) {
+	fonts := make(fonts)
+	for _, font := range ctx.Optimize.FontObjects {
+		encoding := ""
+		var enc encoder.TextEncoding
+		if encodingDict, ok := font.FontDict.Find("Encoding"); ok {
+			encoding = encodingDict.String()
+		}
+
+		switch encoding {
+		case "WinAnsiEncoding":
+			enc = encoder.NewWinAnsiEncoding()
+		case "MacRomanEncoding":
+			enc = encoder.NewMacRomanEncoding()
+		case "Identity-H":
+			cmap, err := getCMap(ctx, font.FontDict)
+			if err != nil {
+				return nil, err
+			}
+
+			enc = cmap
+		}
+
+		for _, resName := range font.ResourceNames {
+			fo, ok := fonts[resName]
+			if !ok {
+				fo = &fontObject{
+					FontObject: font,
+					enc:        enc,
+				}
+			} else {
+				if fo.enc == nil {
+					fo.enc = enc
+				}
+
+				if cmap, ok := enc.(*encoder.CMap); ok {
+					cmap.Merge(fo.enc.(*encoder.CMap))
+					fo.enc = cmap
+				}
+			}
+
+			fonts[resName] = fo
+		}
+	}
+
+	return fonts, nil
+}
+
+func getCMap(ctx *model.Context, fontDict types.Dict) (*encoder.CMap, error) {
+	toUnicode, ok := fontDict.Find("ToUnicode")
 	if !ok {
-		return nil, nil
+		return nil, fmt.Errorf("ToUnicode not found")
 	}
 
 	stream, valid, err := ctx.DereferenceStreamDict(toUnicode)
@@ -94,47 +139,4 @@ func getCMap(ctx *model.Context, font *model.FontObject) (*encoder.CMap, error) 
 	}
 
 	return cmap, nil
-}
-
-func GetFonts(ctx *model.Context) (fontObjects, error) {
-	fonts := make(fontObjects)
-	for _, font := range ctx.Optimize.FontObjects {
-		var textEncoder TextEncoder
-		encoding := ""
-		if encodingObject, ok := font.FontDict.Find("Encoding"); ok {
-			encoding = encodingObject.String()
-		}
-
-		switch encoding {
-		case "WinAnsiEncoding":
-			textEncoder = encoder.NewWinAnsiEncoding()
-		case "MacRomanEncoding":
-			textEncoder = encoder.NewMacRomanEncoding()
-		case "Identity-H":
-			cmap, err := getCMap(ctx, font)
-			if err != nil {
-				return nil, err
-			}
-			textEncoder = cmap
-		}
-
-		for _, resourceName := range font.ResourceNames {
-			fo, ok := fonts.Get(resourceName)
-			if !ok {
-				fo = &fontObject{
-					FontObject: font,
-					encoder:    textEncoder,
-				}
-			} else {
-				if cmap, ok := fo.encoder.(*encoder.CMap); ok {
-					cmap.Merge(textEncoder.(*encoder.CMap))
-					fo.encoder = cmap
-				}
-			}
-
-			fonts.Set(resourceName, fo)
-		}
-	}
-
-	return fonts, nil
 }

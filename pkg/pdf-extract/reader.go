@@ -11,7 +11,7 @@ import (
 
 type Reader struct {
 	ctx   *model.Context
-	fonts fontObjects
+	fonts fonts
 }
 
 func NewReader(f []byte) (*Reader, error) {
