@@ -7,7 +7,6 @@ import (
 	"io"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/mrrizkin/omniscan/pkg/pdf/utils"
 )
@@ -53,34 +52,7 @@ func (cm *CMap) Merge(other *CMap) {
 	}
 }
 
-func (cm *CMap) Decode(original string) string {
-	if strings.Contains(original, "\\") {
-		if strings.Contains(original, "\\\\") {
-			original = strings.ReplaceAll(original, "\\\\", "\\")
-		} else if strings.Contains(original, "\\\r\n") {
-			original = strings.ReplaceAll(original, "\\\r\n", "\r\n")
-		} else if strings.Contains(original, "\\\n") {
-			original = strings.ReplaceAll(original, "\\\n", "\n")
-		} else if strings.Contains(original, "\\n") {
-			original = strings.ReplaceAll(original, "\\n", "\n")
-		} else if strings.Contains(original, "\\r") {
-			original = strings.ReplaceAll(original, "\\r", "\r")
-		} else if strings.Contains(original, "\\b") {
-			original = strings.ReplaceAll(original, "\\b", "\b")
-		} else if strings.Contains(original, "\\t") {
-			original = strings.ReplaceAll(original, "\\t", "\t")
-		} else if strings.Contains(original, "\\f") {
-			original = strings.ReplaceAll(original, "\\f", "\f")
-		} else if strings.Contains(original, "\\(") {
-			original = strings.ReplaceAll(original, "\\(", "(")
-		} else if strings.Contains(original, "\\)") {
-			original = strings.ReplaceAll(original, "\\)", ")")
-		} else {
-			original = strings.ReplaceAll(original, "\\", "")
-		}
-	}
-
-	raw := original
+func (cm *CMap) Decode(raw string) string {
 	var r []rune
 
 Decode:
