@@ -27,6 +27,8 @@ type (
 func NewReader(filename string, b []byte) (*PDFCPU, error) {
 	r := bytes.NewReader(b)
 	conf := model.NewDefaultConfiguration()
+	conf.DecodeAllStreams = true
+	conf.OptimizeDuplicateContentStreams = true
 	ctx, err := api.ReadValidateAndOptimize(r, conf)
 	if err != nil {
 		return nil, err

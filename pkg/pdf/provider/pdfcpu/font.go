@@ -119,11 +119,6 @@ func getCMap(ctx *model.Context, fontDict types.Dict) (*encoder.CMap, error) {
 		return nil, fmt.Errorf("invalid ToUnicode stream")
 	}
 
-	err = stream.Decode()
-	if err != nil {
-		return nil, err
-	}
-
 	cmap, err := encoder.ParseCmap(stream.Content)
 	if err != nil {
 		return nil, err
