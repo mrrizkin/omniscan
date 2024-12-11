@@ -19,8 +19,10 @@ type (
 		fonts fonts
 	}
 
+	Content []TextObject
+
 	Page struct {
-		content []TextObject
+		content Content
 	}
 )
 
@@ -101,4 +103,15 @@ func (p *Page) GetTextByRow(tolerance float64) (types.Rows, error) {
 
 	sort.Sort(row)
 	return row, nil
+}
+
+func (contents Content) Len() int {
+	return len(contents)
+}
+func (a Content) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a Content) Less(i, j int) bool {
+	if a[i].Position.Y == a[j].Position.Y {
+		return a[i].Position.X < a[j].Position.X
+	}
+	return a[i].Position.Y > a[j].Position.Y
 }
