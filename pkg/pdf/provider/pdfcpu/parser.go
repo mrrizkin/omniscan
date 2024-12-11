@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -24,23 +25,24 @@ type parserState struct {
 	CurrentFont       *fontObject
 	CurrentFontSize   float64
 	CurrentTextObject TextObject
-	TextObjects       []TextObject
+	TextObjects       Content
 }
 
-func (p *PDFCPU) parse(r io.Reader) ([]TextObject, error) {
+func (p *PDFCPU) parse(r io.Reader) (Content, error) {
 	scanner := bufio.NewScanner(r)
 
-	var result []TextObject
+	var result Content
 	state := parserState{
 		State: "INITIAL",
 	}
 
+	lastTextFound := 0
 	textFound := 0
 	for scanner.Scan() {
 		line := scanner.Text()
 		switch state.State {
 		case "INITIAL":
-			if strings.Contains(line, "BT") { // Begin Text block
+			if strings.HasPrefix(line, "BT") { // Begin Text block
 				state.State = "TEXT_BLOCK"
 				state.CurrentTextObject = TextObject{}
 
@@ -85,30 +87,33 @@ func (p *PDFCPU) parse(r io.Reader) ([]TextObject, error) {
 
 			// Parse position
 			if posMatch := posRegex.FindStringSubmatch(line); len(posMatch) > 2 {
-				if textFound == 0 {
-					x, _ := strconv.ParseFloat(posMatch[1], 64)
-					y, _ := strconv.ParseFloat(posMatch[2], 64)
-					state.CurrentTextObject.Position.X += x
-					state.CurrentTextObject.Position.Y += y
-				}
+				x, _ := strconv.ParseFloat(posMatch[1], 64)
+				y, _ := strconv.ParseFloat(posMatch[2], 64)
+				state.CurrentTextObject.Position.X += x
+				state.CurrentTextObject.Position.Y += y
 			}
 
 			// Parse position using Tm operator
 			if tmMatch := tmRegex.FindStringSubmatch(line); len(tmMatch) > 6 {
-				if textFound == 0 {
-					x, _ := strconv.ParseFloat(tmMatch[5], 64)
-					y, _ := strconv.ParseFloat(tmMatch[6], 64)
-					state.CurrentTextObject.Position = Position{X: x, Y: y}
-				}
+				x, _ := strconv.ParseFloat(tmMatch[5], 64)
+				y, _ := strconv.ParseFloat(tmMatch[6], 64)
+				state.CurrentTextObject.Position = Position{X: x, Y: y}
 			}
 
 			// End of text block
-			if strings.Contains(line, "ET") {
+			if strings.HasPrefix(line, "ET") {
+				state.State = "INITIAL"
+				textFound = 0
+				lastTextFound = 0
+			}
+
+			if textFound > lastTextFound {
+				lastTextFound = textFound
 				if state.CurrentTextObject.Text != "" {
 					result = append(result, state.CurrentTextObject)
 				}
-				state.State = "INITIAL"
-				textFound = 0
+
+				state.CurrentTextObject.Text = ""
 			}
 		}
 	}
@@ -117,6 +122,7 @@ func (p *PDFCPU) parse(r io.Reader) ([]TextObject, error) {
 		return nil, err
 	}
 
+	sort.Sort(result)
 	return result, nil
 }
 
