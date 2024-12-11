@@ -124,6 +124,12 @@
                         "description": "Summary",
                         "name": "summary",
                         "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Only scan the e-statement",
+                        "name": "scan_only",
+                        "in": "formData"
                     }
                 ],
                 "responses": {

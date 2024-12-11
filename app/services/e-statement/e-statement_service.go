@@ -69,8 +69,10 @@ func (s *EStatementService) ScanEStatement(
 		}
 	}
 
-	if s.repo.IsFileAlreadyScanned(fileHeader.Filename) {
-		return s.getExistingEStatementResponse(fileHeader, summaryField)
+	if !payload.IsScanOnly() {
+		if s.repo.IsFileAlreadyScanned(fileHeader.Filename) {
+			return s.getExistingEStatementResponse(fileHeader, summaryField)
+		}
 	}
 
 	return s.processNewEStatement(payload, fileHeader, file, summaryField)
@@ -141,6 +143,10 @@ func (s *EStatementService) processNewEStatement(
 	if len(scanResult.Transactions) == 0 {
 		s.log.Error("transactions is empty")
 		return nil, errors.New("transactions is empty")
+	}
+
+	if payload.IsScanOnly() {
+		return s.createScanEStatementResponse(0, scanResult, &OverallSummary{}), nil
 	}
 
 	expiredEStatement, err := calculateEStatementExpiry(payload.TimeBomb)

@@ -13,10 +13,19 @@ type PaginatedEStatement struct {
 }
 
 type ScanEStatementPayload struct {
-	PDFLib   string `form:"pdf_library"  validate:"required"`
-	Bank     string `form:"bank"`
-	TimeBomb string `form:"time_bomb"`
-	Summary  string `form:"summary"`
+	PDFLib   string  `form:"pdf_library"  validate:"required"`
+	Bank     string  `form:"bank"`
+	TimeBomb *string `form:"time_bomb"`
+	Summary  string  `form:"summary"`
+	ScanOnly *bool   `form:"scan_only"`
+}
+
+func (s *ScanEStatementPayload) IsScanOnly() bool {
+	if s.ScanOnly == nil {
+		return false
+	}
+
+	return *s.ScanOnly
 }
 
 type ScanEStatementResponse struct {

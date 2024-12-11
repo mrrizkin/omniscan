@@ -10,7 +10,7 @@ import (
 func (s *EStatementService) createEStatementModel(
 	scanResult *types.ScanResult,
 	filename string,
-	expiry time.Time,
+	expiry *time.Time,
 ) *models.EStatement {
 	return &models.EStatement{
 		Bank:     scanResult.Info.Bank,
@@ -18,7 +18,7 @@ func (s *EStatementService) createEStatementModel(
 		Produk:   scanResult.Info.Produk,
 		Rekening: scanResult.Info.Rekening,
 		Periode:  scanResult.Info.Periode,
-		Expired:  &expiry,
+		Expired:  expiry,
 	}
 }
 
