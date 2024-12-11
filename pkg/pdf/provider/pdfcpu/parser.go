@@ -69,9 +69,9 @@ func (p *PDFCPU) parse(r io.Reader) ([]TextObject, error) {
 			// FIXME: Handle complex text encoding
 			if textMatch := textRegex.FindStringSubmatch(line); len(textMatch) > 1 {
 				if encoder.IsPDFDocEncoded(textMatch[1]) {
-					state.CurrentTextObject.Text = encoder.PdfDocDecode(textMatch[1])
+					state.CurrentTextObject.Text += encoder.PdfDocDecode(textMatch[1])
 				} else if encoder.IsUTF16(textMatch[1]) {
-					state.CurrentTextObject.Text = encoder.Utf16Decode(textMatch[1][2:])
+					state.CurrentTextObject.Text += encoder.Utf16Decode(textMatch[1][2:])
 				} else {
 					if state.CurrentFont != nil {
 						state.CurrentTextObject.Text += state.CurrentFont.Decode(textMatch[1])
