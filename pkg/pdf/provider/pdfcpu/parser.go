@@ -3,6 +3,7 @@ package pdfcpu
 import (
 	"bufio"
 	"io"
+	"math"
 	"regexp"
 	"sort"
 	"strconv"
@@ -12,12 +13,13 @@ import (
 )
 
 var (
-	fontRegex    = regexp.MustCompile(`/F\d+ \d+ Tf`)
-	textRegex    = regexp.MustCompile(`\(([^)]+)\)\s*Tj`)
-	posRegex     = regexp.MustCompile(`(\d+\.?\d*) (\d+\.?\d*) Td`)
-	tmRegex      = regexp.MustCompile(`(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+Tm`)
-	bfCharRegex  = regexp.MustCompile(`<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>`)
-	bfRangeRegex = regexp.MustCompile(`<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>`)
+	fontRegex      = regexp.MustCompile(`\/(F\d+) (\d+\.?\d*) Tf`)
+	textRegex      = regexp.MustCompile(`\(([^)]+)\)\s*Tj`)
+	textArrayRegex = regexp.MustCompile(`\[*((?:\(([^)]+)\)+)+)\]*\s*TJ`)
+	posRegex       = regexp.MustCompile(`(\d+\.?\d*) (\d+\.?\d*) Td`)
+	tmRegex        = regexp.MustCompile(`(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+Tm`)
+	bfCharRegex    = regexp.MustCompile(`<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>`)
+	bfRangeRegex   = regexp.MustCompile(`<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>`)
 )
 
 type parserState struct {
@@ -36,7 +38,6 @@ func (p *PDFCPU) parse(r io.Reader) (Content, error) {
 		State: "INITIAL",
 	}
 
-	lastTextFound := 0
 	textFound := 0
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -54,34 +55,25 @@ func (p *PDFCPU) parse(r io.Reader) (Content, error) {
 
 		case "TEXT_BLOCK":
 			// Parse font name
-			if fontMatch := fontRegex.FindString(line); fontMatch != "" {
-				parts := strings.Split(fontMatch, " ")
-				if len(parts) >= 2 {
-					if font, ok := p.fonts.Get(parts[0]); ok {
-						state.CurrentTextObject.FontName = font.FontName
-						state.CurrentFont = font
-					}
-					fontSize, _ := strconv.ParseFloat(parts[1], 64)
-					state.CurrentTextObject.FontSize = fontSize
-					state.CurrentFontSize = fontSize
+			if fontMatch := fontRegex.FindStringSubmatch(line); len(fontMatch) > 2 {
+				if font, ok := p.fonts.Get(fontMatch[1]); ok {
+					state.CurrentTextObject.FontName = font.FontName
+					state.CurrentFont = font
 				}
+				fontSize, _ := strconv.ParseFloat(fontMatch[2], 64)
+				state.CurrentTextObject.FontSize = fontSize
+				state.CurrentFontSize = fontSize
 			}
 
-			// Parse text content
-			// FIXME: Handle complex text encoding
+			// Parse text content Tj
 			if textMatch := textRegex.FindStringSubmatch(line); len(textMatch) > 1 {
-				if encoder.IsPDFDocEncoded(textMatch[1]) {
-					state.CurrentTextObject.Text += encoder.PdfDocDecode(textMatch[1])
-				} else if encoder.IsUTF16(textMatch[1]) {
-					state.CurrentTextObject.Text += encoder.Utf16Decode(textMatch[1][2:])
-				} else {
-					if state.CurrentFont != nil {
-						state.CurrentTextObject.Text += state.CurrentFont.Decode(sanitizeIdentityH(line))
-					} else {
-						state.CurrentTextObject.Text += textMatch[1]
-					}
-				}
+				state.CurrentTextObject.Text += decodeText(line, textMatch[1], state.CurrentFont)
+				textFound++
+			}
 
+			// Parse text content TJ
+			if textArrayMatch := textArrayRegex.FindStringSubmatch(line); len(textArrayMatch) > 2 {
+				state.CurrentTextObject.Text += decodeText(line, textArrayMatch[2], state.CurrentFont)
 				textFound++
 			}
 
@@ -89,6 +81,10 @@ func (p *PDFCPU) parse(r io.Reader) (Content, error) {
 			if posMatch := posRegex.FindStringSubmatch(line); len(posMatch) > 2 {
 				x, _ := strconv.ParseFloat(posMatch[1], 64)
 				y, _ := strconv.ParseFloat(posMatch[2], 64)
+				if state.CurrentTextObject.Position.Y != 0 &&
+					math.Abs(state.CurrentTextObject.Position.Y-y) > state.CurrentFontSize {
+					state.CurrentTextObject.Text += "\n"
+				}
 				state.CurrentTextObject.Position.X += x
 				state.CurrentTextObject.Position.Y += y
 			}
@@ -97,6 +93,10 @@ func (p *PDFCPU) parse(r io.Reader) (Content, error) {
 			if tmMatch := tmRegex.FindStringSubmatch(line); len(tmMatch) > 6 {
 				x, _ := strconv.ParseFloat(tmMatch[5], 64)
 				y, _ := strconv.ParseFloat(tmMatch[6], 64)
+				if state.CurrentTextObject.Position.Y != 0 &&
+					math.Abs(state.CurrentTextObject.Position.Y-y) > state.CurrentFontSize {
+					state.CurrentTextObject.Text += "\n"
+				}
 				state.CurrentTextObject.Position = Position{X: x, Y: y}
 			}
 
@@ -104,16 +104,9 @@ func (p *PDFCPU) parse(r io.Reader) (Content, error) {
 			if strings.HasPrefix(line, "ET") {
 				state.State = "INITIAL"
 				textFound = 0
-				lastTextFound = 0
-			}
-
-			if textFound > lastTextFound {
-				lastTextFound = textFound
 				if state.CurrentTextObject.Text != "" {
 					result = append(result, state.CurrentTextObject)
 				}
-
-				state.CurrentTextObject.Text = ""
 			}
 		}
 	}
@@ -215,4 +208,18 @@ Loop:
 	}
 
 	return string(tmp)
+}
+
+func decodeText(raw, text string, font *fontObject) string {
+	if encoder.IsPDFDocEncoded(text) {
+		return encoder.PdfDocDecode(text)
+	} else if encoder.IsUTF16(text) {
+		return encoder.Utf16Decode(text[2:])
+	} else {
+		if font != nil {
+			return font.Decode(sanitizeIdentityH(raw))
+		} else {
+			return text
+		}
+	}
 }

@@ -41,11 +41,10 @@ func (c rightCol) Is(x float64) bool {
 }
 
 const dateCol leftCol = 46.04
-const balanceCol rightCol = 470.0
-const changeAmountCol rightCol = 340.0
-const description1Col leftCol = 92.61
-const description2Col leftCol = 196.71
-const summaryFirstCol leftCol = 180.18
+const changeAmountDebitCol rightCol = 400.0
+const changeAmountCreditCol rightCol = 500.0
+const descriptionCol leftCol = 99.61
+const summaryFirstCol leftCol = 99.61
 
 // a row with a new date signifies a new transaction
 //
@@ -68,9 +67,8 @@ func IngestRow(
 			return
 		}
 		t = prevT
-		readSupplementary(t, words)
+		shouldStopProcessing = readSupplementary(t, words)
 		return
-
 	}
 	firstWord := words[0]
 	date, dateErr := time.Parse("02/01/2006", firstWord.S+"/"+year)
@@ -88,16 +86,6 @@ func IngestRow(
 		}
 	}
 
-	lastWord := words[len(words)-1]
-	balance, balanceErr := strconv.ParseFloat(
-		strings.ReplaceAll(lastWord.S, ",", ""),
-		32)
-	hasBalance := balanceErr == nil && balanceCol.Is(lastWord.X)
-	if hasBalance {
-		t.Balance = balance
-		words = words[:len(words)-1]
-	}
-
 	shouldStopProcessing = readSupplementary(t, words)
 	return
 }
@@ -106,31 +94,38 @@ func IngestRow(
 // date and balance information
 func readSupplementary(t *Transaction, words types.TextHorizontal) (stopProcessingNext bool) {
 	for i, word := range words {
-		if i == 0 && word.S == "SALDO AWAL" && summaryFirstCol.Is(word.X) {
+		if i == 0 && word.S == "Saldo Awal" && summaryFirstCol.Is(word.X) {
 			return true
 		}
-		if changeAmountCol.Is(word.X) {
+		if changeAmountDebitCol.Is(word.X) {
 			amount, amountErr := strconv.ParseFloat(
 				strings.ReplaceAll(word.S, ",", ""),
 				32)
 			if amountErr == nil {
-				isCr := len(words) == i+1 || (words[i+1].S != "DB")
-				t.DirectionCr = &isCr
+				if t.DirectionCr == nil {
+					isCr := false
+					t.DirectionCr = &isCr
+				}
 				t.Change = amount
 			}
 		}
-		if description1Col.Is(word.X) {
+		if changeAmountCreditCol.Is(word.X) {
+			amount, amountErr := strconv.ParseFloat(
+				strings.ReplaceAll(word.S, ",", ""),
+				32)
+			if amountErr == nil {
+				if t.DirectionCr == nil {
+					isCr := true
+					t.DirectionCr = &isCr
+				}
+				t.Change = amount
+			}
+		}
+		if descriptionCol.Is(word.X) {
 			if t.Description1 == "" {
 				t.Description1 = word.S
 			} else {
 				t.Description1 = t.Description1 + "\n" + word.S
-			}
-		}
-		if description2Col.Is(word.X) {
-			if t.Description2 == "" {
-				t.Description2 = word.S
-			} else {
-				t.Description2 = t.Description2 + "\n" + word.S
 			}
 		}
 	}

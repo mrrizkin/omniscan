@@ -3,6 +3,8 @@ package pdfcpu
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"sort"
 
 	"github.com/mrrizkin/omniscan/pkg/pdf"
@@ -52,6 +54,18 @@ func NewReader(filename string, b []byte) (*PDFCPU, error) {
 }
 
 func (p *PDFCPU) Page(page int) (pdf.PDFPage, error) {
+	rr, err := pdfcpu.ExtractPageContent(p.ctx, page)
+	if err != nil {
+		return nil, err
+	}
+
+	pdfContent, err := io.ReadAll(rr)
+
+	err = os.WriteFile(fmt.Sprintf("page_%d.pdf", page), pdfContent, 0644)
+	if err != nil {
+		return nil, err
+	}
+
 	r, err := pdfcpu.ExtractPageContent(p.ctx, page)
 	if err != nil {
 		return nil, err
@@ -72,6 +86,7 @@ func (p *PDFCPU) NumPage() int {
 func (p *Page) GetTextByRow(tolerance float64) (types.Rows, error) {
 	row := make(types.Rows, 0)
 	currentPosition := 0.0
+	lastRowIndex := 0
 	rowIndex := -1
 	for _, object := range p.content {
 		if !utils.IsEqualTolerance(object.Position.Y, currentPosition, tolerance) {
@@ -98,6 +113,11 @@ func (p *Page) GetTextByRow(tolerance float64) (types.Rows, error) {
 				Y:        object.Position.Y,
 				S:        object.Text,
 			})
+
+			if lastRowIndex != rowIndex {
+				sort.Sort(row[lastRowIndex].Content)
+				lastRowIndex = rowIndex
+			}
 		}
 	}
 

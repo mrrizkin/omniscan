@@ -2,7 +2,6 @@ package mandiri
 
 import (
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/mrrizkin/omniscan/pkg/pdf"
@@ -66,56 +65,43 @@ func processPdf(pdfR pdf.PDFReader) (Transactions, Header, error) {
 				// here we try to ignore statement end-footer
 				m := 0
 				for wordIndex, word := range row.Content {
-					if year == "1900" {
-						for _, m := range months {
-							if strings.Contains(word.S, m) {
-								yearStr := strings.TrimPrefix(word.S, m+" ")
-								if yearRegex.MatchString(yearStr) {
-									_, err := strconv.ParseInt(yearStr, 10, 32)
-									if err != nil {
-										year = "1900"
-									} else {
-										year = yearStr
-									}
-								}
-							}
-						}
-					}
 					if pageIndex == 1 {
 						if strings.Contains(word.S, "REKENING") && wordIndex == 0 {
 							if len(row.Content) == 1 {
 								header.Product = word.S
 							}
 						}
-						if strings.Contains(word.S, "NO. REKENING") && wordIndex == 0 {
-							if len(row.Content) > 2 {
-								txt := row.Content[2]
+						if strings.Contains(word.S, "Nomor Rekening") && wordIndex == 0 {
+							if len(row.Content) > 1 {
+								txt := row.Content[1]
 								header.Rekening = txt.S
 							}
 						}
-						if strings.Contains(word.S, "PERIODE") && wordIndex == 0 {
-							if len(row.Content) > 2 {
-								txt := row.Content[2]
-								header.Periode = txt.S
+						if strings.Contains(word.S, "Periode") && wordIndex == 0 {
+							if len(row.Content) > 3 {
+								text := []string{}
+								for _, txt := range row.Content[1:] {
+									text = append(text, txt.S)
+								}
+								header.Periode = strings.Join(text, " ")
+								toDate := strings.Split(row.Content[3].S, "/")
+								year = toDate[len(toDate)-1]
 							}
 						}
 					}
 					if strings.Contains("TANGGAL", word.S) && wordIndex == 0 {
 						m++
 					}
-					if strings.Contains("KETERANGAN", word.S) && wordIndex == 1 {
+					if strings.Contains("TRANSAKSI", word.S) && wordIndex == 1 {
 						m++
 					}
-					if strings.Contains("CBG", word.S) && wordIndex == 2 {
+					if strings.Contains("DEBIT", word.S) && wordIndex == 2 {
 						m++
 					}
-					if strings.Contains("MUTASI", word.S) && wordIndex == 3 {
+					if strings.Contains("KREDIT", word.S) && wordIndex == 3 {
 						m++
 					}
-					if strings.Contains("SALDO", word.S) && wordIndex == 4 {
-						m++
-					}
-					if m == 5 {
+					if m == 4 {
 						aftTanggal = true
 					}
 				}
