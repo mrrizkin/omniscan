@@ -42,7 +42,7 @@ func processPdf(pdfR pdf.PDFReader) (Transactions, Header, error) {
 			return nil, header, err
 		}
 
-		sortedRows, err := p.GetTextByRow(1)
+		sortedRows, err := p.GetTextByRow(4)
 		if err != nil {
 			return nil, header, err
 		}
